@@ -3,10 +3,12 @@ package com.germistry.gui.components;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import com.germistry.gui.GuiComponent;
@@ -14,32 +16,30 @@ import com.germistry.main.Game;
 import com.germistry.utils.DrawUtils;
 import com.germistry.utils.Sound;
 
-public class GuiButton extends GuiComponent {
-	
+public class ImageButton extends GuiComponent {
+
 	private enum State {
 		RELEASED,
 		HOVER,
-		PRESSED
+		PRESSED 
 	}
 	private State currentState = State.RELEASED;
 	private Rectangle clickBox;
 	private ArrayList<ActionListener> actionListeners;
 	private String labelText = "";
-	
-	//TODO 8.2 Add in bufferedImages of the 3 states of the button for fancy buttons? Otherwise just boring rectangles.
-	private Color released;
-	private Color hover;
-	private Color pressed;
-	
+	 
 	private Font font = Game.main.deriveFont(20f); 
-	//private AudioHandler audio;
 	
-	public GuiButton(int x, int y, int width, int height) {
-		clickBox = new Rectangle(x, y, width, height);
+	private Image releasedImage;
+	private Image hoverImage;
+	private Image pressedImage;
+	
+	public ImageButton(BufferedImage releasedImage, BufferedImage hoverImage, BufferedImage pressedImage, int x, int y) {
+		clickBox = new Rectangle(x, y, releasedImage.getWidth(), releasedImage.getHeight());
 		actionListeners = new ArrayList<ActionListener>();
-		released = new Color(173, 177, 179);
-		hover = new Color(150, 156, 158);
-		pressed = new Color(111, 116, 117);
+		setReleasedImage(releasedImage);
+		setPressedImage(pressedImage);
+		setHoverImage(hoverImage);
 	}
 	
 	@Override
@@ -50,17 +50,15 @@ public class GuiButton extends GuiComponent {
 	@Override
 	public void render(Graphics2D g) {
 		if(currentState == State.RELEASED) {
-			g.setColor(released);
-			g.fill(clickBox);
+			g.drawImage(releasedImage, getX(), getY(), null);
 		}
 		else if(currentState == State.HOVER) {
-			g.setColor(hover);
-			g.fill(clickBox);
+			g.drawImage(hoverImage, getX(), getY(), null);
 		}
 		else {
-			g.setColor(pressed);
-			g.fill(clickBox);
+			g.drawImage(pressedImage, getX(), getY(), null);
 		}
+		
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.white);
 		g.setFont(font);
@@ -118,6 +116,20 @@ public class GuiButton extends GuiComponent {
 	}
 	public int getHeight() {
 		return clickBox.height;
+	}
+	
+	public Image getReleasedImage() {
+		return releasedImage;
+	}
+
+	public void setReleasedImage(Image releasedImage) {
+		this.releasedImage = releasedImage;
+	}
+	public void setPressedImage(Image pressedImage) {
+		this.pressedImage = pressedImage;
+	}
+	public void setHoverImage(Image hoverImage) {
+		this.hoverImage = hoverImage;
 	}
 	public void setLabelText(String text) {
 		this.labelText = text;

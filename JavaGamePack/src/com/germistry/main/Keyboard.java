@@ -15,7 +15,7 @@ public class Keyboard {
 			if(i == 1) previous[KeyEvent.VK_RIGHT] = pressed[KeyEvent.VK_RIGHT];
 			if(i == 2) previous[KeyEvent.VK_UP] = pressed[KeyEvent.VK_UP];
 			if(i == 3) previous[KeyEvent.VK_DOWN] = pressed[KeyEvent.VK_DOWN];
-			if(i == 4) previous[KeyEvent.VK_ENTER] = pressed[KeyEvent.VK_ENTER];
+			if(i == 4) previous[KeyEvent.VK_ENTER] = pressed[KeyEvent.VK_ENTER]; 
 		}
 	}
 	

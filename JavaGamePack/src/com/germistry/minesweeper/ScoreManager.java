@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 
+import com.germistry.utils.FileUtils;
+
 
 public class ScoreManager {
 	//current times
@@ -16,23 +18,24 @@ public class ScoreManager {
 	//minecount & flagCount
 	private int mineCount; //actual minecount for game
 	private int flagCount;
+	private int blownMineRow, blownMineCol; //if lost records the mine at coords which blew 
 	private int displayMines; //mines as displayed on screen, minecount - flags, 
     
 	private int[] cells = new int[GameBoard.ROWS * GameBoard.COLS];
     private int[] revealed = new int[GameBoard.ROWS * GameBoard.COLS];
     private int[] flags = new int[GameBoard.ROWS * GameBoard.COLS];//if null at position treat as a zero
     		
-	//file
-	private String filePath;
+	//file 
+    private String filePath;
 	private String temp = "MinesweeperTEMP.tmp";
-	private GameBoard gameBoard;
 	
+	private GameBoard gameBoard;
 	private boolean newGame;
 	
 	public ScoreManager(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;
 		//get to file location
-		filePath = new File("").getAbsolutePath();
+		filePath = FileUtils.filePath();
 	}
 	//reset when game is lost
 	public void reset() {
@@ -66,6 +69,9 @@ public class ScoreManager {
 			writer.newLine();
 			//displayMines 
 			writer.write("" + 0);
+			writer.newLine();
+			//blown mine X & Y 
+			writer.write("0,0");
 			writer.newLine();
 			//cells
 			for(int row = 0; row < GameBoard.ROWS; row++) {
@@ -131,6 +137,9 @@ public class ScoreManager {
 			//display mines
 			writer.write("" + displayMines);
 			writer.newLine();
+			//blown mine X & Y
+			writer.write("" + gameBoard.getBlownMineRow() + "," + gameBoard.getBlownMineCol());
+			writer.newLine();
 			//cells
 			for(int row = 0; row < GameBoard.ROWS; row++) {
 				for(int col = 0; col < GameBoard.COLS; col++) {
@@ -195,6 +204,10 @@ public class ScoreManager {
 			mineCount = Integer.parseInt(reader.readLine());
 			flagCount = Integer.parseInt(reader.readLine());
 			displayMines = Integer.parseInt(reader.readLine());
+			String[] blownMineLine = reader.readLine().split(",");
+			blownMineRow = Integer.parseInt(blownMineLine[0]);
+			blownMineCol = Integer.parseInt(blownMineLine[1]);
+			
 			String[] cellString = reader.readLine().split("-");
 			for(int i = 0; i < cellString.length; i++) {
 				this.cells[i] = Integer.parseInt(cellString[i]);
@@ -243,6 +256,12 @@ public class ScoreManager {
 	}
 	public int getFlagCount() {
 		return flagCount;
+	}
+	public int getBlownMineRow() {
+		return blownMineRow;
+	}
+	public int getBlownMineCol() {
+		return blownMineCol;
 	}
 	public int[] getCells() {
 		return cells;

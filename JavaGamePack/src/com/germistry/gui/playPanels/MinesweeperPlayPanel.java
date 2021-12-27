@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileSystemView;
@@ -15,7 +16,7 @@ import javax.swing.filechooser.FileSystemView;
 import com.germistry.gui.GuiPanel;
 import com.germistry.gui.GuiScreen;
 import com.germistry.gui.PanelName;
-import com.germistry.gui.components.GuiButton;
+import com.germistry.gui.components.ImageButton;
 import com.germistry.main.Game;
 
 import com.germistry.minesweeper.GameBoard;
@@ -30,17 +31,19 @@ public class MinesweeperPlayPanel extends GuiPanel {
 	private Font scoreFont;
 	private String timeFormatted;
 	
-	private GuiButton returnToMain; // this is the in-game button to return to the menu
-	private GuiButton restartGame; // this is the in-game button to restart
-	//Game Over Variables
-	private GuiButton restart;
-	private GuiButton mainMenu; //this is the minesweeper menu
-	private GuiButton screenShot;
+	private ImageButton backButton; // this is the in-game button to return to the menu
+	private static final int NUM_IMAGES = 12;
+	public static BufferedImage smileyAssets[] = new BufferedImage[NUM_IMAGES];
+  	private String path = "/minesweeper/smileyStates/"; 
+  	
+	private ImageButton smileyHappyButton; 
+	private ImageButton smileyDeadButton;
+	private ImageButton smileyWonButton;
 	
-	private int smallButtonWidth = 180;
+	private ImageButton screenShot;
+	
 	private int spacing = 20;
-	private int largeButtonWidth = smallButtonWidth * 2 + spacing;
-	private int buttonHeight = 50;
+	private int smileyY = 70;
 	
 	private boolean added; //tracks if buttons have already been added to panel
 	private int alpha;
@@ -50,38 +53,55 @@ public class MinesweeperPlayPanel extends GuiPanel {
 	public MinesweeperPlayPanel() {
 		scoreFont = Game.main.deriveFont(24f);
 		gameOverFont = Game.main.deriveFont(70f);
-		board = new GameBoard(Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 20);
+		board = new GameBoard(Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 108);
 		scores = board.getScores();
 		info = new BufferedImage(GameBoard.BOARD_WIDTH, 50, BufferedImage.TYPE_INT_RGB);
-		returnToMain = new GuiButton(Game.WIDTH / 2 - (smallButtonWidth * 2 + spacing) / 2, Game.HEIGHT - buttonHeight - spacing, smallButtonWidth, buttonHeight);
-		restartGame = new GuiButton(returnToMain.getX() + smallButtonWidth + spacing, Game.HEIGHT - buttonHeight - spacing, smallButtonWidth, buttonHeight);
-		
-		mainMenu = new GuiButton(Game.WIDTH / 2 - largeButtonWidth / 2, 350, largeButtonWidth, buttonHeight);
-		restart = new GuiButton(mainMenu.getX(), mainMenu.getY() - spacing - buttonHeight, smallButtonWidth, buttonHeight);
-		screenShot = new GuiButton(restart.getX() + restart.getWidth() + spacing, restart.getY(), smallButtonWidth, buttonHeight);
+		backButton = new ImageButton(Game.uiAssets[0], Game.uiAssets[1], Game.uiAssets[2], Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 10);
+		try {
+			for (int i = 0; i < NUM_IMAGES; i++) {
+	            var fullpath = path + i + ".png";
+	            System.out.print("Trying to load: " + fullpath + " ...");
+	            smileyAssets[i] = ImageIO.read(getClass().getResource(fullpath));
+	            System.out.println("succeeded!");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("failed!");
+		}
+		smileyHappyButton = new ImageButton(smileyAssets[0], smileyAssets[1], smileyAssets[2], Game.WIDTH / 2 - 20, smileyY);
+		smileyDeadButton = new ImageButton(smileyAssets[6], smileyAssets[7], smileyAssets[8],Game.WIDTH / 2 - 20, smileyY);
+		smileyWonButton = new ImageButton(smileyAssets[9], smileyAssets[10], smileyAssets[11],Game.WIDTH / 2 - 20, smileyY);
+		screenShot = new ImageButton(Game.uiAssets[3], Game.uiAssets[4], Game.uiAssets[5], backButton.getX() + backButton.getWidth() + spacing, backButton.getY());
 	
-		returnToMain.setLabelText("Return to Menu");
-		restartGame.setLabelText("Restart");
-		mainMenu.setLabelText("Return to Menu");
-		restart.setLabelText("Restart");
+		backButton.setLabelText("Menu");
 		screenShot.setLabelText("Screen Shot");
 		
-		restart.addActionListener(new ActionListener() {
+		smileyDeadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				board.getScores().reset();
 				board.reset();
 				alpha = 0;
-				
-				remove(restart);
-				remove(screenShot);
-				remove(mainMenu);
+				remove(smileyDeadButton);
 				added = false;
-				add(returnToMain);
-				add(restartGame);
+				add(smileyHappyButton);
 			}
 		});
-		restartGame.addActionListener(new ActionListener() {
+		
+		smileyWonButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				board.getScores().reset();
+				board.reset();
+				alpha = 0;
+				remove(smileyWonButton);
+				added = false;
+				add(smileyHappyButton);
+			}
+		});
+				
+		smileyHappyButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				board.getScores().reset();
@@ -96,35 +116,35 @@ public class MinesweeperPlayPanel extends GuiPanel {
 			}
 		});
 		
-		mainMenu.addActionListener(new ActionListener() {
+		backButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GuiScreen.getInstance().setCurrentPanel(PanelName.MINESWEEPER_MENU);
 				board.setHasStarted(false); 
 			}
 		});
-		returnToMain.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				GuiScreen.getInstance().setCurrentPanel(PanelName.MINESWEEPER_MENU);
-				board.setHasStarted(false); 
-			}
-		});
-		add(returnToMain);
-		add(restartGame);
+		add(backButton);
+		add(screenShot);
+		add(smileyHappyButton);
 	}
 	@Override
 	public void update() {
-		board.update();
+		if(board.hasStarted()) {
+			board.update();
+		}
 		if(board.hasLost() || board.hasWon()) {
-			alpha++;
-			if(alpha > 170) alpha = 170;
+			board.setHasStarted(false);
 		}
 	}
 	
 	@Override
 	public void render(Graphics2D g) {
 		drawGui(g);
+		if(board.isSmileyOh() && smileyHappyButton.getReleasedImage() == smileyAssets[0]) {
+			smileyHappyButton.setReleasedImage(smileyAssets[3]);
+		}
+		else if (!board.isSmileyOh() && smileyHappyButton.getReleasedImage() == smileyAssets[3]) 
+			smileyHappyButton.setReleasedImage(smileyAssets[0]);
 		board.render(g);
 		
 		//take the screenshot before rendering game over
@@ -135,6 +155,15 @@ public class MinesweeperPlayPanel extends GuiPanel {
 			g2d.fillRect(0, 0, Game.WIDTH, Game.HEIGHT);
 			drawGui(g2d);
 			board.render(g2d);
+			if(board.hasLost()) {
+				g2d.drawImage(smileyAssets[6], Game.WIDTH / 2 - 20, smileyY, smileyAssets[6].getWidth(), smileyAssets[6].getHeight(), null);
+			}
+			else if(board.hasWon()) {
+				g2d.drawImage(smileyAssets[9], Game.WIDTH / 2 - 20, smileyY, smileyAssets[9].getWidth(), smileyAssets[9].getHeight(), null);
+			}
+			else {
+				g2d.drawImage(smileyAssets[0], Game.WIDTH / 2 - 20, smileyY, smileyAssets[0].getWidth(), smileyAssets[0].getHeight(), null);
+			}
 			//bizarre way of finding desktop on any system/drive in java!
 			try {
 				String path = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath().toString();
@@ -148,50 +177,21 @@ public class MinesweeperPlayPanel extends GuiPanel {
 		if(board.hasLost()) {
 			if(!added) {
 				added = true;
-				add(mainMenu);
-				add(restart);
-				add(screenShot);
-				remove(returnToMain);
-				remove(restartGame);
+				add(smileyDeadButton);
+				remove(smileyHappyButton);
+				
 			}
-			drawGameOver(g);
 		}
-		if(board.hasWon()) {
+		if(board.hasWon()) { 
 			if(!added) {
 				added = true;
-				add(mainMenu);
-				add(restart);
-				add(screenShot);
-				remove(returnToMain);
-				remove(restartGame);
+				add(smileyWonButton);
+				remove(smileyHappyButton);
 			}
-			drawGameWon(g);
-		}
-		if(!board.hasStarted() && !board.hasWon() || !board.hasStarted() && !board.hasLost()) {
-			drawStartMessage(g);
 		}
 		super.render(g);
-		
 	}
 	
-	//TODO 8.2 make this fade in effect a bit nicer
-	public void drawGameOver(Graphics2D g) {
-		g.setColor(new Color(222, 222, 222, alpha));
-		g.fillRect(0, 0, Game.WIDTH, Game.HEIGHT);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.red);
-		g.setFont(gameOverFont);
-		g.drawString("Game Over!", Game.WIDTH / 2 - DrawUtils.getMessageWidth("Game Over!", gameOverFont, g) / 2, 250);
-	}
-	//TODO 8.2 make this fade in effect a bit nicer
-	public void drawGameWon(Graphics2D g) {
-		g.setColor(new Color(222, 222, 222, alpha));
-		g.fillRect(0, 0, Game.WIDTH, Game.HEIGHT);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.green);
-		g.setFont(gameOverFont);
-		g.drawString("Game WON!", Game.WIDTH / 2 - DrawUtils.getMessageWidth("Game WON!", gameOverFont, g) / 2, 250);
-	}
 	public void drawStartMessage(Graphics2D g) {
 		g.setColor(new Color(222, 222, 222, alpha));
 		g.fillRect(0, 0, Game.WIDTH, Game.HEIGHT);
@@ -206,17 +206,17 @@ public class MinesweeperPlayPanel extends GuiPanel {
 		timeFormatted = DrawUtils.formatTime(scores.getTime());
 		//drawing
 		Graphics2D g2d = (Graphics2D)info.getGraphics();
-		g2d.setColor(Color.white);
+		g2d.setColor(Color.darkGray);
 		g2d.fillRect(0, 0, info.getWidth(), info.getHeight());
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.setColor(Color.darkGray);
+		g2d.setColor(Color.white);
 		g2d.setFont(scoreFont);
 		g2d.drawString("Time: " + timeFormatted, spacing, 
-				DrawUtils.getMessageHeight("Time: " + timeFormatted, scoreFont, g2d) + spacing);
+				DrawUtils.getMessageHeight("Time: " + timeFormatted, scoreFont, g2d) + spacing + 10);
 		g2d.drawString("Mines To Go: " + scores.getDisplayMines(), 
 				info.getWidth() - DrawUtils.getMessageWidth("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d) - spacing, 
-				DrawUtils.getMessageHeight("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d)+ spacing);
+				DrawUtils.getMessageHeight("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d)+ spacing + 10);
 		g2d.dispose();
-		g.drawImage(info, Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, GameBoard.BOARD_HEIGHT + spacing, null);
+		g.drawImage(info, Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 60, null);
 	}
 }

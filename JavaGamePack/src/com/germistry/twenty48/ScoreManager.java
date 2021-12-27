@@ -7,6 +7,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 
+import com.germistry.utils.FileUtils;
+
 //this does the temp saving during the game, the leaderboards class does the final saving 
 public class ScoreManager {
 
@@ -29,7 +31,7 @@ public class ScoreManager {
 	public ScoreManager(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;
 		//get to file location
-		filePath = new File("").getAbsolutePath();
+		filePath = FileUtils.filePath(); 
 	}
 	//reset when game is lost
 	public void reset() {

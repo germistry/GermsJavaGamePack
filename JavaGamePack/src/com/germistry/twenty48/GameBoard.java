@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import com.germistry.main.Keyboard;
-
+import com.germistry.main.LeaderBoard;
 import com.germistry.utils.Sound;
 
 //2048 game logic 
@@ -21,7 +21,7 @@ public class GameBoard {
 	private boolean lost;
 	private boolean won;
 		
-	private BufferedImage gameBoard;
+	private BufferedImage gameBoard; 
 	private BufferedImage finalBoard;
 	private int x;
 	private int y;
@@ -39,7 +39,7 @@ public class GameBoard {
 	private int saveCount;
 	
 	private ScoreManager scores;
-	private Leaderboards leaderboards;
+	private LeaderBoard leaderboard;
 	
 	public GameBoard(int x, int y) {
 		this.x = x;
@@ -50,12 +50,12 @@ public class GameBoard {
 		
 		createBoardImage();
 				
-		leaderboards = Leaderboards.getInstance();
-		leaderboards.loadTopScores();
+		leaderboard = LeaderBoard.getInstance();
+		leaderboard.loadTopScores();
 		scores = new ScoreManager(this);
 		scores.loadGame();
-		scores.setBestTime(leaderboards.getFastestTime());
-		scores.setCurrentTopScore(leaderboards.getHighScore());
+		scores.setBestTime(leaderboard.get2048FastestTime());
+		scores.setCurrentTopScore(leaderboard.get2048HighScore());
 		if(scores.newGame()) {
 			start();
 			scores.saveGame();
@@ -417,9 +417,9 @@ public class GameBoard {
 	public void setLost(boolean lost) {
 		//ie if not set to lost but you have lost ...
 		if(!this.lost && lost) {
-			leaderboards.addTopTile(getHighestTileValue());
-			leaderboards.addTopScore(scores.getCurrentScore());
-			leaderboards.saveTopScores();
+			leaderboard.addTop2048Tile(getHighestTileValue());
+			leaderboard.addTop2048Score(scores.getCurrentScore());
+			leaderboard.saveTopScores();
 		}
 		this.lost = lost;
 	}
@@ -430,10 +430,10 @@ public class GameBoard {
 	public void setWon(boolean won) {
 		//ie if not set to won but you have won ...
 		if(!this.won && won) {
-			leaderboards.addTopTile(getHighestTileValue());
-			leaderboards.addTopScore(scores.getCurrentScore());
-			leaderboards.addTopTime(scores.getTime());
-			leaderboards.saveTopScores();
+			leaderboard.addTop2048Tile(getHighestTileValue());
+			leaderboard.addTop2048Score(scores.getCurrentScore());
+			leaderboard.addTop2048Time(scores.getTime());
+			leaderboard.saveTopScores();
 		}
 		this.won = won;
 	}

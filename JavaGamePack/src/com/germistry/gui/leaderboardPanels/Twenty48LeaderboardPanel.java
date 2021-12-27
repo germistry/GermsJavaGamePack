@@ -14,7 +14,7 @@ import com.germistry.gui.GuiScreen;
 import com.germistry.gui.PanelName;
 import com.germistry.gui.components.GuiButton;
 import com.germistry.main.Game;
-import com.germistry.twenty48.Leaderboards;
+import com.germistry.main.LeaderBoard;
 import com.germistry.utils.DrawUtils;
 
 public class Twenty48LeaderboardPanel extends GuiPanel {
@@ -29,7 +29,7 @@ public class Twenty48LeaderboardPanel extends GuiPanel {
 	
 	private int buttonWidth = 200;
 	private int buttonHeight = 60;
-	private int horizontalSpacing = 20;
+	private int horizontalSpacing = 20; 
 	private int verticalSpacing = 40;
 	
 	private enum InfoPanel {
@@ -38,7 +38,8 @@ public class Twenty48LeaderboardPanel extends GuiPanel {
 		TIMES
 	}
 	private InfoPanel currentPanel = InfoPanel.SCORES;
-	private Leaderboards leaderboard;
+	
+	private LeaderBoard leaderboard;
 	private ArrayList<Integer> topScores;	
 	private ArrayList<Integer> topTiles;
 	private ArrayList<Long> topTimes;
@@ -48,14 +49,14 @@ public class Twenty48LeaderboardPanel extends GuiPanel {
 	
 	public Twenty48LeaderboardPanel() {
 		super();
-		leaderboard = Leaderboards.getInstance();
+		leaderboard = LeaderBoard.getInstance();
 		leaderboard.loadTopScores();
 		topScores = new ArrayList<Integer>();
-		topScores = leaderboard.getTopScores();
+		topScores = leaderboard.getTop2048Scores();
 		topTiles = new ArrayList<Integer>();
-		topTiles = leaderboard.getTopTiles();
+		topTiles = leaderboard.getTop2048Tiles();
 		topTimes = new ArrayList<Long>();
-		topTimes = leaderboard.getTopTimes();
+		topTimes = leaderboard.getTop2048Times();
 		info = new BufferedImage(infoWidth, infoHeight, BufferedImage.TYPE_INT_RGB);
 		GuiButton mainMenuButton = new GuiButton(Game.WIDTH / 2 - buttonWidth / 2, Game.HEIGHT - buttonHeight - horizontalSpacing, buttonWidth, buttonHeight);
 		GuiButton tilesButton = new GuiButton(Game.WIDTH / 2 - buttonWidth / 2, 120, buttonWidth, buttonHeight);

@@ -15,7 +15,7 @@ import com.germistry.gui.PanelName;
 import com.germistry.gui.components.GuiButton;
 
 import com.germistry.main.Game;
-import com.germistry.snake.Leaderboard;
+import com.germistry.main.LeaderBoard;
 import com.germistry.utils.DrawUtils;
 
 public class SnakeLeaderboardPanel extends GuiPanel {
@@ -29,10 +29,10 @@ public class SnakeLeaderboardPanel extends GuiPanel {
 	private String author = "germistry's";
 	
 	private int buttonWidth = 200;
-	private int buttonHeight = 60;
+	private int buttonHeight = 60; 
 	private int spacing = 40;
 	
-	private Leaderboard leaderboard;
+	private LeaderBoard leaderboard;
 	private ArrayList<Integer> topScores;	
 	private BufferedImage info;
 	private int infoWidth = 300;
@@ -40,10 +40,10 @@ public class SnakeLeaderboardPanel extends GuiPanel {
 	
 	public SnakeLeaderboardPanel() {
 		super();
-		leaderboard = Leaderboard.getInstance();
+		leaderboard = LeaderBoard.getInstance();
 		leaderboard.loadTopScores();
 		topScores = new ArrayList<Integer>();
-		topScores = leaderboard.getTopScores();
+		topScores = leaderboard.getTopSnakeScores();
 		info = new BufferedImage(infoWidth, infoHeight, BufferedImage.TYPE_INT_RGB);
 		GuiButton mainMenuButton = new GuiButton(Game.WIDTH / 2 - buttonWidth / 2, Game.HEIGHT - buttonHeight - spacing, buttonWidth, buttonHeight);
 		

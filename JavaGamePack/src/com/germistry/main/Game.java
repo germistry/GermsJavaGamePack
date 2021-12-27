@@ -7,7 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import com.germistry.gui.GuiScreen;
@@ -31,7 +33,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static final int WIDTH = 896;
+	public static final int WIDTH = 896;  
 	public static final int HEIGHT = 504;
 	public static final Font main = new Font("Arial", Font.BOLD, 14);
 	
@@ -42,10 +44,15 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	private GuiScreen screen;
 	private Mouse mouse;
 	
+	private static final int NUM_IMAGES = 6;
+	public static final BufferedImage uiAssets[] = new BufferedImage[NUM_IMAGES];
+	private String path = "/UI/";
+	
 	public Game() {
 		setFocusable(true);
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		addKeyListener(this);
+		loadAssets();
 		screen = GuiScreen.getInstance();
 		screen.add(PanelName.MAIN_MENU, new MainMenuPanel());
 		screen.add(PanelName.TWENTY28_MENU, new Twenty48MenuPanel());
@@ -58,7 +65,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		screen.add(PanelName.SNAKE_MENU, new SnakeMenuPanel());
 		screen.add(PanelName.SNAKE_LEADERBOARD, new SnakeLeaderboardPanel());
 		screen.add(PanelName.SNAKE_PLAY, new SnakePlayPanel());
-		//TODO 7.3 BLOCK BREAKER (C64 Krackout Clone)
+		//TODO 7.3 BLOCK BREAKER (C64 Krackout Clone) 
 		//TODO 7.7 RAID (C64 Raid Clone)
 		//TODO 7.2 SPACE INVADERS 
 		//TODO 7.5 SUDOKU - Super Hard!
@@ -69,6 +76,21 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		mouse = Mouse.getInstance();
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
+	}
+	
+	private void loadAssets() {
+		try {
+			for (int i = 0; i < NUM_IMAGES; i++) {
+	            var fullpath = path + i + ".png";
+	            System.out.print("Trying to load: " + fullpath + " ...");
+	            uiAssets[i] = ImageIO.read(getClass().getResource(fullpath));
+	            System.out.println("succeeded!");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("failed!");
+		}
 	}
 	
 	private void update() {

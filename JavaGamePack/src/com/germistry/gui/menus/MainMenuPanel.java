@@ -19,15 +19,16 @@ public class MainMenuPanel extends GuiPanel {
 	private Font titleFont = Game.main.deriveFont(72f);
 	private Font authorFont = Game.main.deriveFont(28f);
 	private Font bugLineFont = Game.main.deriveFont(12f);
+	private Font bugLineFont2 = Game.main.deriveFont(14f);
 	private String title = "Java Game Pack";
 	private String author = "germistry's";
-	private String bugLine = "Please run me at 100% resolution on your fancy laptop as I'm an old java app!";
-	
+	private String bugLine = "If I look 'fuzzy' on windows 10 don't forget to change your java.exe and javaw.exe high DPI scaling property to use System!";
+	private String bugLine2 = "I am a java app afterall!";
 	private int buttonWidth = 220;
 	private int buttonHeight = 60;
 	private int vertSpacing = 90;
-	private int horizSpacing = 20;
-	
+	private int horizSpacing = 20; 
+	 
 	public MainMenuPanel() {
 		super();
 		GuiButton minesweeperButton = new GuiButton(Game.WIDTH / 2 - buttonWidth / 2, 200, buttonWidth, buttonHeight);
@@ -82,7 +83,9 @@ public class MainMenuPanel extends GuiPanel {
 		g.setColor(Color.black);
 		g.drawString(author, Game.WIDTH / 2 - DrawUtils.getMessageWidth(author, authorFont, g) / 2, 80);
 		g.setFont(bugLineFont);
-		g.drawString(bugLine, Game.WIDTH / 2 - DrawUtils.getMessageWidth(bugLine, bugLineFont, g) / 2, Game.HEIGHT - 20);
+		g.drawString(bugLine, Game.WIDTH / 2 - DrawUtils.getMessageWidth(bugLine, bugLineFont, g) / 2, Game.HEIGHT - 50);
+		g.setFont(bugLineFont2);
+		g.drawString(bugLine2, Game.WIDTH / 2 - DrawUtils.getMessageWidth(bugLine2, bugLineFont2, g) / 2, Game.HEIGHT - 20);
 		
 	}
 	

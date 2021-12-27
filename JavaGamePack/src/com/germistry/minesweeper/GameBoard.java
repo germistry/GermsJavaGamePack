@@ -2,7 +2,6 @@ package com.germistry.minesweeper;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -11,13 +10,13 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import com.germistry.main.Game;
-import com.germistry.main.Keyboard;
+import com.germistry.main.LeaderBoard;
 
 //minesweeper logic
 public class GameBoard extends MinesListener {
 
 	//size of board no of cells etc
-	public static final int ROWS = 20;
+	public static final int ROWS = 21;
 	public static final int COLS = 45;
 	public static final int UNIT_SIZE = 16;
 	public static final int BOARD_EDGE = 20;
@@ -26,9 +25,9 @@ public class GameBoard extends MinesListener {
 	private static final int NUM_IMAGES = 15;
 	//for the drawing clickbox accuracy considering the board is rendered using a calc on the panel
 	private int horizGap = Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2 + 19; //offset by 87 on x-axis
-	private int vertGap = 40;
-		
-    private int x, y;
+	private int vertGap = 128; 
+
+	private int x, y;
     private int mouseX, mouseY;
 	private int mineCount;
 	private int flagCount;
@@ -51,14 +50,16 @@ public class GameBoard extends MinesListener {
   	private int saveCount;
   	private boolean lost;
 	private boolean won;
-  	
+	private int blownMineRow, blownMineCol;
+  	private boolean smileyOh;
+	
   	private ScoreManager scores;
-	private Leaderboard leaderboard;
+	private LeaderBoard leaderboard;
   	//resources 	
   	//index 0 new cell, index 1 - 8 numbers, index 9 bomb, index 10 user clicked bomb,
   	//index 11 user flagged wrong bomb, index 12 flag, index 13 highlight cell, 14 is zero
   	public static BufferedImage gameAssets[] = new BufferedImage[NUM_IMAGES];
-  	private String path = "/minesweeper/";
+  	private String path = "/minesweeper/finalGameTiles/";
   	
 	public GameBoard(int x, int y) {
 		super();
@@ -87,11 +88,11 @@ public class GameBoard extends MinesListener {
 			System.err.println("failed!");
 		}
 		createBoardImage();
-		leaderboard = Leaderboard.getInstance();
+		leaderboard = LeaderBoard.getInstance();
 		leaderboard.loadTopScores();
 		scores = new ScoreManager(this);
 		scores.loadGame();
-		scores.setBestTime(leaderboard.getFastestTime());
+		scores.setBestTime(leaderboard.getMinesweeperFastestTime());
 		if(scores.newGame()) {
 			start();
 			scores.saveGame();
@@ -99,6 +100,8 @@ public class GameBoard extends MinesListener {
 		else {
 			mineCount = scores.getMineCount();
 			flagCount = scores.getFlagCount();
+			blownMineRow = scores.getBlownMineRow();
+			blownMineCol = scores.getBlownMineCol();
 			
 			int[][] revealedInt = new int[ROWS][COLS];
 			for (int i = 0; i < ROWS; i++) {
@@ -136,7 +139,10 @@ public class GameBoard extends MinesListener {
 		cells = new Cell[ROWS][COLS];
 		mineCount = 0;
 		flagCount = 0;
+		blownMineRow = -1;
+		blownMineCol = -1;
 		start();
+		scores.setDisplayMines(mineCount - flagCount);
 		scores.saveGame();
 		lost = false;
 		won = false;
@@ -149,7 +155,7 @@ public class GameBoard extends MinesListener {
 	public void update() {
 		saveCount++;
 		//could change this to save on the same thread but not causing any issues like this as very small data
-		if(saveCount >= 120) {
+		if(saveCount >= 60) {
 			saveCount = 0;
 			scores.saveGame();
 		}
@@ -157,15 +163,17 @@ public class GameBoard extends MinesListener {
 			if(hasStarted) {
 				elapsedMS = (System.nanoTime() - startTime) / 1000000;
 				scores.setTime(elapsedMS);
-				
 			}
 			else {
 				startTime = System.nanoTime();
 				scores.setTime(elapsedMS);
 			}
 		}
-		checkInputs();
-		updateBoard();
+		if(!won && !lost) {
+			if(hasStarted) { 
+				updateBoard();
+			}
+		}
 		scores.setDisplayMines(mineCount - flagCount);
 	}
 	
@@ -176,7 +184,6 @@ public class GameBoard extends MinesListener {
 		g.drawImage(finalBoard, x, y, null);
 		g2d.dispose();
 	}
-	
 	
 	private void createBoardImage() {
 		Graphics2D g = (Graphics2D) gameBoard.getGraphics();
@@ -217,8 +224,11 @@ public class GameBoard extends MinesListener {
 					if(revealed[row][col] == true && mines[row][col] != null) {
 						mines[row][col].setRevealed(true);
 						setLost(true);
+						blownMineRow = mouseCellY();
+						blownMineCol = mouseCellX();
 						blowUpMines();
 						checkFlags();
+						scores.saveGame();
 					}
 					if(revealed[row][col] == true) {
 						if(cell.getValue() == 0) {
@@ -229,7 +239,7 @@ public class GameBoard extends MinesListener {
 				}
 			}
 		}
-		checkWon();
+		checkWonDuringGame();
 	}
 	
 	private void renderBoard(Graphics2D g) {
@@ -252,14 +262,14 @@ public class GameBoard extends MinesListener {
 					else {
 						if(revealed[row][col] == true) {
 							//not flag, is revealed, is mine
-							if(mines[row][col] != null && row == mouseCellY() && col == mouseCellX()) {
+							if(mines[row][col] != null && row == blownMineRow && col == blownMineCol) {
 								g.drawImage(gameAssets[10], null, col * UNIT_SIZE + BOARD_EDGE, row * UNIT_SIZE + BOARD_EDGE);
 							}
 							else if (mines[row][col] != null) {
 								g.drawImage(gameAssets[9], null, col * UNIT_SIZE + BOARD_EDGE, row * UNIT_SIZE + BOARD_EDGE);
 							}
 							//not flag & is revealed
-							else {
+							else if(cells[row][col].isRevealed()){
 								switch(currentCell.getValue()) {
 								case 0:
 									g.drawImage(gameAssets[14], null, col * UNIT_SIZE + BOARD_EDGE, row * UNIT_SIZE + BOARD_EDGE);
@@ -290,9 +300,13 @@ public class GameBoard extends MinesListener {
 									break;
 								}
 							}
+							else {
+								//not flag, not revealed && game over 
+								g.drawImage(gameAssets[0], null, col * UNIT_SIZE + BOARD_EDGE, row * UNIT_SIZE + BOARD_EDGE);	
+							}
 						}
 						else {
-							//not flag, not revealed
+							//not flag, not revealed and in game
 							g.drawImage(gameAssets[0], null, col * UNIT_SIZE + BOARD_EDGE, row * UNIT_SIZE + BOARD_EDGE);	
 						}
 					}
@@ -305,7 +319,7 @@ public class GameBoard extends MinesListener {
 		Random random = new Random();	
 		for(int row = 0; row < ROWS; row++) { 
 			for(int col = 0; col < COLS; col++) { 
-				if(random.nextInt(100) < 20) {
+				if(random.nextInt(100) < 22) {
 					Mine mine = new Mine(false, col, row);
 					mines[row][col] = mine;
 					mineCount++;
@@ -320,10 +334,10 @@ public class GameBoard extends MinesListener {
 					cells[row][col] = cell;
 					revealed[row][col] = false;
 					highlight[row][col] = false;
-					} 
-				}
+				} 
 			}
 		}
+	}
 	
 	private boolean isMine(int row, int col, int cRow, int cCol) {
 		return (row - cRow < 2 && row - cRow > -2 
@@ -391,38 +405,51 @@ public class GameBoard extends MinesListener {
 	}
 	
 	private boolean checkLost() {
-		if(lost) {
-			return true;
+		for(int row = 0; row < ROWS; row++) {
+			for(int col = 0; col < COLS; col++) {
+				if(cells[row][col].getValue() == 9 && revealed[row][col] == true) {
+					return true;
+				}
+			} 
 		}
 		return false;
 	}
 	
-	private boolean checkWon() {		
-		boolean[][] output = new boolean[ROWS][COLS];
+	private boolean checkWonDuringGame() {		
 		for(int row = 0; row < ROWS; row++) {
 			for(int col = 0; col < COLS; col++) {
 				if(cells[row][col].getValue() == 9) {
-					if(flags[row][col] != null) {
-						output[row][col] = true;
-					}
-					else {
-						output[row][col] = false;
+					if(flags[row][col] == null) {
 						return false;
 					}
 				}
 				if(cells[row][col].getValue() >= 0 && cells[row][col].getValue() < 9) {
-					if(cells[row][col].isRevealed()) {
-						output[row][col] = true;
-					}
-						
-					else {
-						output[row][col] = false;
+					if(!cells[row][col].isRevealed()) {
 						return false; 
 					}
 				}
 			}
 		}
 		setWon(true);
+		scores.saveGame();
+		return true;
+	}
+	
+	private boolean checkWon() {		
+		for(int row = 0; row < ROWS; row++) {
+			for(int col = 0; col < COLS; col++) {
+				if(cells[row][col].getValue() == 9) {
+					if(flags[row][col] == null) {
+						return false;
+					}
+				}
+				if(cells[row][col].getValue() >= 0 && cells[row][col].getValue() < 9) {
+					if(!cells[row][col].isRevealed()) {
+						return false; 
+					}
+				}
+			}
+		}
 		return true;
 	}
 	
@@ -446,11 +473,6 @@ public class GameBoard extends MinesListener {
 				flags[row][col] = null;
 				flagCount--;
 			}
-		}
-	}
-	private void checkInputs() {
-		if(Keyboard.typed(KeyEvent.VK_ENTER)) {
-			if(!hasStarted) hasStarted = !lost;
 		}
 	}
 	
@@ -477,28 +499,30 @@ public class GameBoard extends MinesListener {
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		if(hasStarted) {
-			int mY = mouseCellY();
-			int mX = mouseCellX();
-			if(mY != -1 && mX != -1) {
+		int mY = mouseCellY();
+		int mX = mouseCellX();
+		if(mY != -1 && mX != -1) {
+			if(hasStarted && !lost || hasStarted && !won) {
 				if(e.getButton() == 1) {
 					if(flags[mY][mX] == null && revealed[mY][mX] == false) {
 						highlight[mY][mX] = true; 
+						setSmileyOh(true);
 					}
 				}
 			}
 		}
 	}
 	public void mouseReleased(MouseEvent e) {
-		if(hasStarted) {
-			int mY = mouseCellY();
-			int mX = mouseCellX();
-			if(mY != -1 && mX != -1) {
+		int mY = mouseCellY();
+		int mX = mouseCellX();
+		if(mY != -1 && mX != -1) {			
+			if(hasStarted && !lost || hasStarted && !won) {
 				//left reveal cell
 				if(e.getButton() == 1) {
 					if(flags[mY][mX] == null && revealed[mY][mX] == false) {
 						revealed[mY][mX] = true;
 						highlight[mY][mX] = false;
+						setSmileyOh(false);
 					}
 				}
 				//right set flag
@@ -506,16 +530,48 @@ public class GameBoard extends MinesListener {
 					toggleFlag(mY, mX);
 				}
 			}
+			else if (!hasStarted && !lost) {
+				hasStarted = true;
+				startTime = System.nanoTime();
+				//repeated here to get the first click
+				if(e.getButton() == 1) {
+					if(flags[mY][mX] == null && revealed[mY][mX] == false) {
+						revealed[mY][mX] = true;
+						highlight[mY][mX] = false;
+						setSmileyOh(false);
+					}
+				}
+				//right set flag
+				else if(e.getButton() == 3) {
+					toggleFlag(mY, mX);
+				}
+			}
+			else if(!hasStarted && !won) {
+				hasStarted = true;
+				startTime = System.nanoTime();
+				//repeated here to get the first click
+				if(e.getButton() == 1) {
+					if(flags[mY][mX] == null && revealed[mY][mX] == false) {
+						revealed[mY][mX] = true;
+						highlight[mY][mX] = false;
+						setSmileyOh(false);
+					}
+				}
+				//right set flag
+				else if(e.getButton() == 3) {
+					toggleFlag(mY, mX);
+				}
+			}
+			else if(hasStarted && lost || hasStarted && won)
+				hasStarted = false;
 		}		
 	}
 	public void mouseDragged(MouseEvent e) {
 		
 	}
 	public void mouseMoved(MouseEvent e) {
-		if(hasStarted) {
-			mouseX = e.getX();
-			mouseY = e.getY();
-		}	
+		mouseX = e.getX();
+		mouseY = e.getY();
 	}	
 
 	public BufferedImage[] getGameAssets() {
@@ -529,9 +585,24 @@ public class GameBoard extends MinesListener {
 	public boolean hasLost() {
 		return lost;
 	}
+	
+	public int getFinalMineCount() {
+		int i = mineCount - flagCount;
+		for(int row = 0; row < ROWS; row++) {
+			for(int col = 0; col < COLS; col++) {
+				if(flags[row][col] != null) {
+					if(flags[row][col].isCorrect() == false) { 
+						i++;
+					} 
+				}
+			}
+		}
+		return i;
+	}
 	public void setLost(boolean lost) {
 		//ie if not set to lost but you have lost ...
 		if(!this.lost && lost) {
+			leaderboard.addTopMinesweeperMineCount(getFinalMineCount());
 			leaderboard.saveTopScores();
 		}
 		this.lost = lost;
@@ -543,7 +614,8 @@ public class GameBoard extends MinesListener {
 	public void setWon(boolean won) {
 		//ie if not set to won but you have won ...
 		if(!this.won && won) {
-			leaderboard.addTopTime(scores.getTime());
+			leaderboard.addTopMinesweeperMineCount(getFinalMineCount());
+			leaderboard.addTopMinesweeperTime(scores.getTime());
 			leaderboard.saveTopScores();
 		}
 		this.won = won;
@@ -560,7 +632,15 @@ public class GameBoard extends MinesListener {
 	public int getMineCount() {
 		return mineCount;
 	}
+	
+	public int getBlownMineRow() {
+		return blownMineRow;
+	}
 
+	public int getBlownMineCol() {
+		return blownMineCol;
+	}
+	
 	public Flag[][] getFlags() {
 		return flags;
 	}
@@ -584,5 +664,13 @@ public class GameBoard extends MinesListener {
 
 	public void setHasStarted(boolean hasStarted) {
 		this.hasStarted = hasStarted;
+	}
+
+	public boolean isSmileyOh() {
+		return smileyOh;
+	}
+
+	public void setSmileyOh(boolean smileyOh) {
+		this.smileyOh = smileyOh;
 	}
 }

@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import com.germistry.utils.FileUtils;
+
 public class LeaderBoard {
 
 	private static LeaderBoard leaderBoard;
@@ -22,9 +24,9 @@ public class LeaderBoard {
 	private ArrayList<Integer> topMinesweeperMineCount;
 	private ArrayList<Long> topMinesweeperTimes;
 
-	private LeaderBoard() {
-		filePath = new File("").getAbsolutePath();
-		highScores = "Scores.tmp";
+	private LeaderBoard() { 
+		filePath = FileUtils.filePath();
+		highScores = "Scores.txt";
 		top2048Scores = new ArrayList<Integer>();
 		top2048Tiles = new ArrayList<Integer>();
 		top2048Times = new ArrayList<Long>();
@@ -39,7 +41,7 @@ public class LeaderBoard {
 		}
 		return leaderBoard;
 	}
-
+	
 	public void addTop2048Score(int score) {
 		for(int i = 0; i < top2048Scores.size(); i++) {
 			if (score >= top2048Scores.get(i)) {
@@ -98,7 +100,7 @@ public class LeaderBoard {
 	public void loadTopScores() {
 		try {
 			File f = new File(filePath, highScores);
-			if(!f.isFile()) {
+			if(!f.isFile()) { 
 				createSaveData();
 			}
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
@@ -189,7 +191,7 @@ public class LeaderBoard {
 			writer.write("0-0-0-0-0");
 			writer.newLine();
 			//top minesweeper minecount
-			writer.write("0-0-0-0-0");
+			writer.write(Integer.MAX_VALUE + "-" + Integer.MAX_VALUE + "-" + Integer.MAX_VALUE + "-" + Integer.MAX_VALUE + "-" + Integer.MAX_VALUE);
 			writer.newLine();
 			//top minesweeper times
 			writer.write(Integer.MAX_VALUE + "-" + Integer.MAX_VALUE + "-" + Integer.MAX_VALUE + "-" + Integer.MAX_VALUE + "-" + Integer.MAX_VALUE);

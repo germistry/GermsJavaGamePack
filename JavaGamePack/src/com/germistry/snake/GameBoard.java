@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.germistry.main.Keyboard;
+import com.germistry.main.LeaderBoard;
 
 //snake logic
 public class GameBoard {
@@ -24,7 +25,7 @@ public class GameBoard {
 	private BufferedImage finalBoard;
 	
 	//for timer
-	private long elapsedMS;
+	private long elapsedMS; 
 	private long startTime;
 	private boolean hasStarted = false;
 	//simple saving, TODO 2 look into encrypting
@@ -35,7 +36,7 @@ public class GameBoard {
 	private int[] yDir = {1, -1, 0, 0};  //down - up
 	
 	private ScoreManager scores;
-	private Leaderboard leaderboard;
+	private LeaderBoard leaderboard;
 	private boolean lost;
 	private boolean snakeCanMove = false;
 	
@@ -55,11 +56,11 @@ public class GameBoard {
 		finalBoard = new BufferedImage(BOARD_WIDTH, BOARD_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		
 		createBoard();
-		leaderboard = Leaderboard.getInstance();
+		leaderboard = LeaderBoard.getInstance();
 		leaderboard.loadTopScores();
 		scores = new ScoreManager(this);
 		scores.loadGame();
-		scores.setCurrentTopScore(leaderboard.getHighScore());
+		scores.setCurrentTopScore(leaderboard.getSnakeHighScore());
 		if(scores.newGame()) {
 			start();
 			scores.saveGame();
@@ -297,9 +298,8 @@ public class GameBoard {
 		snakeCanMove = false; 
 		//ie if not set to lost but you have lost ...
 		if(!this.lost && lost) {
-			leaderboard.addTopScore(scores.getCurrentScore());
+			leaderboard.addTopSnakeScore(scores.getCurrentScore());
 			leaderboard.saveTopScores();
-			
 		}
 		this.lost = lost;
 	}

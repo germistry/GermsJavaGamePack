@@ -29,33 +29,22 @@ public class MinesListener {
 	
 	public void mousePressed(MouseEvent e) {
 		for(int i = 0; i < gameBoards.size(); i++) {
-			GameBoard g = gameBoards.get(i);
-			if (g.hasStarted() && g.hasLost() == false && g.hasWon() == false) 
-				gameBoards.get(i).mousePressed(e);
+			gameBoards.get(i).mousePressed(e);
 		}
 	}
 	public void mouseReleased(MouseEvent e) {
 		for(int i = 0; i < gameBoards.size(); i++) {
-			GameBoard g = gameBoards.get(i);
-			if (g.hasStarted() && g.hasLost() == false && g.hasWon() == false) 
-				gameBoards.get(i).mouseReleased(e);
-			
-			
+			gameBoards.get(i).mouseReleased(e);
 		}
 	}
 	public void mouseDragged(MouseEvent e) {
 		for(int i = 0; i < gameBoards.size(); i++) {
-			GameBoard g = gameBoards.get(i);
-			if (g.hasStarted() && g.hasLost() == false && g.hasWon() == false) 
 			gameBoards.get(i).mouseDragged(e);
 		}
 	}
 	public void mouseMoved(MouseEvent e) {
 		for(int i = 0; i < gameBoards.size(); i++) {
-			GameBoard g = gameBoards.get(i);
-			if (g.hasStarted() && g.hasLost() == false && g.hasWon() == false) 
 			gameBoards.get(i).mouseMoved(e);
-			
 		}
 	}
 }

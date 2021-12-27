@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import com.germistry.utils.FileUtils;
+
 //this does the temp saving during the game, the leaderboard class does the final saving 
 public class ScoreManager {
 	
@@ -25,7 +27,7 @@ public class ScoreManager {
 	private int direction;
 	//file
 	private String filePath;
-	private String temp = "SNAKETEMP.tmp";
+	private String temp = "SNAKETEMP.tmp"; 
 	private GameBoard gameBoard;
 	
 	private boolean newGame;
@@ -33,7 +35,7 @@ public class ScoreManager {
 	public ScoreManager(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;
 		//get to file location
-		filePath = new File("").getAbsolutePath();
+		filePath = FileUtils.filePath();
 	}
 	//reset when game is lost
 	public void reset() {
@@ -68,11 +70,13 @@ public class ScoreManager {
 			writer.newLine();
 			//snake direction
 			writer.write("" + 0);
-			//snake arraylist  values 
+			writer.newLine();
+			//snake arraylist  values x
 			writer.write("" + 0);
 			writer.newLine();
+			//snake arraylist  values y
 			writer.write("" + 0);
-			writer.newLine();
+			
 			writer.close();
 		}
 		catch (Exception e){
