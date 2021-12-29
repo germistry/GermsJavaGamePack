@@ -16,8 +16,8 @@ public class Tile {
 	public static final int HEIGHT = 100;
 	public static final int SLIDE_SPEED = 30;
 	//for rounded rectangles 
-	public static final int ARC_WIDTH = 15;
-	public static final int ARC_HEIGHT = 15;
+	public static final int ARC_WIDTH = 10;
+	public static final int ARC_HEIGHT = 10;
 	
 	private int value;
 	private BufferedImage tileImage;
@@ -102,54 +102,57 @@ public class Tile {
 	
 	private void drawImage() {
 		Graphics2D g = (Graphics2D)tileImage.getGraphics();
-		
-		if(value == 2) {
-			background = new Color(0xE9E9E9);
-			foreground = new Color(0x000000);
-		}
-		else if(value == 4) {
-			background = new Color(0xE6DAAB);
-			foreground = new Color(0x000000);
-		}
-		else if(value == 8) {
-			background = new Color(0xF79D3D);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 16) {
-			background = new Color(0xF28007);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 32) {
-			background = new Color(0xF55E3B);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 64) {
-			background = new Color(0xFF0000);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 128) {
-			background = new Color(0xE9DE84);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 256) {
-			background = new Color(0xF6E873);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 512) {
-			background = new Color(0xF5E455);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 1024) {
-			background = new Color(0xF7E12C);
-			foreground = new Color(0xFFFFFF);
-		}
-		else if(value == 2048) {
-			background = new Color(0xFFE400);
-			foreground = new Color(0xFFFFFF);
-		}
-		else {
-			background = Color.black;
-			foreground = Color.white;
+		switch (value) {
+			case 2: 
+				background = new Color(0xE9E9E9);
+				foreground = new Color(0x000000);
+				break;
+			case 4: 
+				background = new Color(0xDADB64);
+				foreground = new Color(0x000000);
+				break;
+			case 8: 
+				background = new Color(0xB9DB64);
+				foreground = new Color(0xFFFFFF);
+				break;
+			case 16: 
+				background = new Color(0x83EF58);
+				foreground = new Color(0xFFFFFF);
+				break;
+			case 32: 
+				background = new Color(0x66BF45);
+				foreground = new Color(0xFFFFFF);
+				break;
+				
+			case 64:
+				background = new Color(0x66BF9C);
+				foreground = new Color(0xFFFFFF);
+				break;
+				
+			case 128:
+				background = new Color(0x66BFFF);
+				foreground = new Color(0xFFFFFF);
+				break;
+				
+			case 256:
+				background = new Color(0x0094FF);
+				foreground = new Color(0xFFFFFF);
+				break;
+			case 512:
+				background = new Color(0xC5AFFF);
+				foreground = new Color(0xFFFFFF);
+				break;
+			case 1024:
+				background = new Color(0x9A75FF);
+				foreground = new Color(0xFFFFFF);
+				break;
+			case 2048:
+				background = new Color(0x4300FF);
+				foreground = new Color(0xFFFFFF);
+				break;
+			default:
+				background = Color.black;
+				foreground = Color.white;
 		}
 		
 		g.setColor(new Color(0,0,0,0));

@@ -16,13 +16,16 @@ import com.germistry.gui.GuiScreen;
 import com.germistry.gui.PanelName;
 import com.germistry.gui.leaderboardPanels.MinesweeperLeaderboardPanel;
 import com.germistry.gui.leaderboardPanels.SnakeLeaderboardPanel;
+import com.germistry.gui.leaderboardPanels.TetrisLeaderboardPanel;
 import com.germistry.gui.leaderboardPanels.Twenty48LeaderboardPanel;
 import com.germistry.gui.menus.MainMenuPanel;
 import com.germistry.gui.menus.MinesweeperMenuPanel;
 import com.germistry.gui.menus.SnakeMenuPanel;
+import com.germistry.gui.menus.TetrisMenuPanel;
 import com.germistry.gui.menus.Twenty48MenuPanel;
 import com.germistry.gui.playPanels.MinesweeperPlayPanel;
 import com.germistry.gui.playPanels.SnakePlayPanel;
+import com.germistry.gui.playPanels.TetrisPlayPanel;
 import com.germistry.gui.playPanels.Twenty48PlayPanel;
 
 //TODO 8.0 All Score Managers & Leaderboards to be combined into one class so there is one scores file/one leaderboard file
@@ -44,7 +47,7 @@ public class Game extends JPanel implements KeyListener, Runnable {
 	private GuiScreen screen;
 	private Mouse mouse;
 	
-	private static final int NUM_IMAGES = 6;
+	private static final int NUM_IMAGES = 21;
 	public static final BufferedImage uiAssets[] = new BufferedImage[NUM_IMAGES];
 	private String path = "/UI/";
 	
@@ -58,20 +61,20 @@ public class Game extends JPanel implements KeyListener, Runnable {
 		screen.add(PanelName.TWENTY28_MENU, new Twenty48MenuPanel());
 		screen.add(PanelName.TWENTY28_LEADERBOARD, new Twenty48LeaderboardPanel());
 		screen.add(PanelName.TWENTY28_PLAY, new Twenty48PlayPanel());
-		//TODO 7.50 MINESWEEPER in progress
 		screen.add(PanelName.MINESWEEPER_MENU, new MinesweeperMenuPanel());
 		screen.add(PanelName.MINESWEEPER_LEADERBOARD, new MinesweeperLeaderboardPanel());
 		screen.add(PanelName.MINESWEEPER_PLAY, new MinesweeperPlayPanel());
 		screen.add(PanelName.SNAKE_MENU, new SnakeMenuPanel());
 		screen.add(PanelName.SNAKE_LEADERBOARD, new SnakeLeaderboardPanel());
 		screen.add(PanelName.SNAKE_PLAY, new SnakePlayPanel());
+		screen.add(PanelName.TETRIS_MENU, new TetrisMenuPanel());
+		screen.add(PanelName.TETRIS_LEADERBOARD, new TetrisLeaderboardPanel());
+		screen.add(PanelName.TETRIS_PLAY, new TetrisPlayPanel());
 		//TODO 7.3 BLOCK BREAKER (C64 Krackout Clone) 
 		//TODO 7.7 RAID (C64 Raid Clone)
 		//TODO 7.2 SPACE INVADERS 
 		//TODO 7.5 SUDOKU - Super Hard!
-		//TODO 7.4 TETRIS
 		//TODO 7.5 PIPES
-		//TODO 7.6 Number 9 game - Asteriods? 
 		screen.setCurrentPanel(PanelName.MAIN_MENU);
 		mouse = Mouse.getInstance();
 		addMouseListener(mouse);

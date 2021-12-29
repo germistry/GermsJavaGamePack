@@ -32,48 +32,35 @@ public class MinesweeperPlayPanel extends GuiPanel {
 	private String timeFormatted;
 	
 	private ImageButton backButton; // this is the in-game button to return to the menu
+	private ImageButton screenShot;
+	
 	private static final int NUM_IMAGES = 12;
 	public static BufferedImage smileyAssets[] = new BufferedImage[NUM_IMAGES];
   	private String path = "/minesweeper/smileyStates/"; 
-  	
 	private ImageButton smileyHappyButton; 
 	private ImageButton smileyDeadButton;
 	private ImageButton smileyWonButton;
-	
-	private ImageButton screenShot;
 	
 	private int spacing = 20;
 	private int smileyY = 70;
 	
 	private boolean added; //tracks if buttons have already been added to panel
-	private int alpha;
-	private Font gameOverFont;
 	private boolean screenshot;
 	
 	public MinesweeperPlayPanel() {
 		scoreFont = Game.main.deriveFont(24f);
-		gameOverFont = Game.main.deriveFont(70f);
 		board = new GameBoard(Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 108);
 		scores = board.getScores();
 		info = new BufferedImage(GameBoard.BOARD_WIDTH, 50, BufferedImage.TYPE_INT_RGB);
 		backButton = new ImageButton(Game.uiAssets[0], Game.uiAssets[1], Game.uiAssets[2], Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 10);
-		try {
-			for (int i = 0; i < NUM_IMAGES; i++) {
-	            var fullpath = path + i + ".png";
-	            System.out.print("Trying to load: " + fullpath + " ...");
-	            smileyAssets[i] = ImageIO.read(getClass().getResource(fullpath));
-	            System.out.println("succeeded!");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			System.err.println("failed!");
-		}
+		screenShot = new ImageButton(Game.uiAssets[3], Game.uiAssets[4], Game.uiAssets[5], backButton.getX() + backButton.getWidth() + spacing, backButton.getY());
+		
+		loadAssets();
+				
 		smileyHappyButton = new ImageButton(smileyAssets[0], smileyAssets[1], smileyAssets[2], Game.WIDTH / 2 - 20, smileyY);
 		smileyDeadButton = new ImageButton(smileyAssets[6], smileyAssets[7], smileyAssets[8],Game.WIDTH / 2 - 20, smileyY);
 		smileyWonButton = new ImageButton(smileyAssets[9], smileyAssets[10], smileyAssets[11],Game.WIDTH / 2 - 20, smileyY);
-		screenShot = new ImageButton(Game.uiAssets[3], Game.uiAssets[4], Game.uiAssets[5], backButton.getX() + backButton.getWidth() + spacing, backButton.getY());
-	
+			
 		backButton.setLabelText("Menu");
 		screenShot.setLabelText("Screen Shot");
 		
@@ -82,7 +69,6 @@ public class MinesweeperPlayPanel extends GuiPanel {
 			public void actionPerformed(ActionEvent e) {
 				board.getScores().reset();
 				board.reset();
-				alpha = 0;
 				remove(smileyDeadButton);
 				added = false;
 				add(smileyHappyButton);
@@ -94,7 +80,6 @@ public class MinesweeperPlayPanel extends GuiPanel {
 			public void actionPerformed(ActionEvent e) {
 				board.getScores().reset();
 				board.reset();
-				alpha = 0;
 				remove(smileyWonButton);
 				added = false;
 				add(smileyHappyButton);
@@ -139,13 +124,14 @@ public class MinesweeperPlayPanel extends GuiPanel {
 	
 	@Override
 	public void render(Graphics2D g) {
+		board.render(g);
 		drawGui(g);
 		if(board.isSmileyOh() && smileyHappyButton.getReleasedImage() == smileyAssets[0]) {
 			smileyHappyButton.setReleasedImage(smileyAssets[3]);
 		}
 		else if (!board.isSmileyOh() && smileyHappyButton.getReleasedImage() == smileyAssets[3]) 
 			smileyHappyButton.setReleasedImage(smileyAssets[0]);
-		board.render(g);
+		
 		
 		//take the screenshot before rendering game over
 		if(screenshot) {
@@ -179,7 +165,6 @@ public class MinesweeperPlayPanel extends GuiPanel {
 				added = true;
 				add(smileyDeadButton);
 				remove(smileyHappyButton);
-				
 			}
 		}
 		if(board.hasWon()) { 
@@ -192,13 +177,19 @@ public class MinesweeperPlayPanel extends GuiPanel {
 		super.render(g);
 	}
 	
-	public void drawStartMessage(Graphics2D g) {
-		g.setColor(new Color(222, 222, 222, alpha));
-		g.fillRect(0, 0, Game.WIDTH, Game.HEIGHT);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.blue);
-		g.setFont(gameOverFont);
-		g.drawString("Press enter to start", Game.WIDTH / 2 - DrawUtils.getMessageWidth("Press enter to start", gameOverFont, g) / 2, 250);
+	private void loadAssets() {
+		try {
+			for (int i = 0; i < NUM_IMAGES; i++) {
+	            var fullpath = path + i + ".png";
+	            System.out.print("Trying to load: " + fullpath + " ...");
+	            smileyAssets[i] = ImageIO.read(getClass().getResource(fullpath));
+	            System.out.println("succeeded!");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("failed!");
+		}
 	}
 	
 	private void drawGui(Graphics2D g) {
@@ -213,9 +204,16 @@ public class MinesweeperPlayPanel extends GuiPanel {
 		g2d.setFont(scoreFont);
 		g2d.drawString("Time: " + timeFormatted, spacing, 
 				DrawUtils.getMessageHeight("Time: " + timeFormatted, scoreFont, g2d) + spacing + 10);
-		g2d.drawString("Mines To Go: " + scores.getDisplayMines(), 
-				info.getWidth() - DrawUtils.getMessageWidth("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d) - spacing, 
-				DrawUtils.getMessageHeight("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d)+ spacing + 10);
+		if(scores.getDisplayMines() >= 0) {
+			g2d.drawString("Mines To Go: " + scores.getDisplayMines(), 
+					info.getWidth() - DrawUtils.getMessageWidth("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d) - spacing, 
+					DrawUtils.getMessageHeight("Mines To Go: " + scores.getDisplayMines(), scoreFont, g2d)+ spacing + 10);
+		}
+		else {
+			g2d.drawString("Mines To Go: 0", 
+					info.getWidth() - DrawUtils.getMessageWidth("Mines To Go: 0", scoreFont, g2d) - spacing, 
+					DrawUtils.getMessageHeight("Mines To Go: 0", scoreFont, g2d)+ spacing + 10);
+		}
 		g2d.dispose();
 		g.drawImage(info, Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 60, null);
 	}
