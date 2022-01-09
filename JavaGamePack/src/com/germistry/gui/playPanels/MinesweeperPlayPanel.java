@@ -27,8 +27,10 @@ public class MinesweeperPlayPanel extends GuiPanel {
 
 	private GameBoard board;
 	private BufferedImage info;
+	private BufferedImage buttonPanel;
 	private ScoreManager scores;
 	private Font scoreFont;
+	private Font dummyBtnFont;
 	private String timeFormatted;
 	
 	private ImageButton backButton; // this is the in-game button to return to the menu
@@ -48,10 +50,12 @@ public class MinesweeperPlayPanel extends GuiPanel {
 	private boolean screenshot;
 	
 	public MinesweeperPlayPanel() {
-		scoreFont = Game.main.deriveFont(24f);
+		dummyBtnFont = Game.mainBold.deriveFont(20f);
+		scoreFont = Game.mainBold.deriveFont(24f);
 		board = new GameBoard(Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 108);
 		scores = board.getScores();
 		info = new BufferedImage(GameBoard.BOARD_WIDTH, 50, BufferedImage.TYPE_INT_RGB);
+		buttonPanel = new BufferedImage(GameBoard.BOARD_WIDTH, 50, BufferedImage.TYPE_INT_RGB);
 		backButton = new ImageButton(Game.uiAssets[0], Game.uiAssets[1], Game.uiAssets[2], Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 10);
 		screenShot = new ImageButton(Game.uiAssets[3], Game.uiAssets[4], Game.uiAssets[5], backButton.getX() + backButton.getWidth() + spacing, backButton.getY());
 		
@@ -125,6 +129,7 @@ public class MinesweeperPlayPanel extends GuiPanel {
 	@Override
 	public void render(Graphics2D g) {
 		board.render(g);
+		drawButtonPanel(g);
 		drawGui(g);
 		if(board.isSmileyOh() && smileyHappyButton.getReleasedImage() == smileyAssets[0]) {
 			smileyHappyButton.setReleasedImage(smileyAssets[3]);
@@ -139,6 +144,7 @@ public class MinesweeperPlayPanel extends GuiPanel {
 			Graphics2D g2d = (Graphics2D)image.getGraphics();
 			g2d.setColor(Color.white);
 			g2d.fillRect(0, 0, Game.WIDTH, Game.HEIGHT);
+			drawButtonPanel(g2d);
 			drawGui(g2d);
 			board.render(g2d);
 			if(board.hasLost()) {
@@ -190,6 +196,28 @@ public class MinesweeperPlayPanel extends GuiPanel {
 		} catch (Exception e) {
 			System.err.println("failed!");
 		}
+	}
+	private void drawButtonPanel(Graphics2D g) {
+		Graphics2D g2d = (Graphics2D)buttonPanel.getGraphics();
+		g2d.setColor(Color.white);
+		g2d.fillRect(0, 0, buttonPanel.getWidth(), buttonPanel.getHeight());
+		g2d.drawImage(Game.uiAssets[0], 0, 0, null);
+		g2d.drawImage(Game.uiAssets[3], Game.uiAssets[0].getWidth() + spacing, 0, null);
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2d.setColor(Color.white);
+		g2d.setFont(dummyBtnFont);
+		g2d.drawString("Menu", Game.uiAssets[0].getWidth() / 2 - DrawUtils.getMessageWidth("Menu", dummyBtnFont, g2d) / 2, 
+				Game.uiAssets[0].getHeight() / 2 + DrawUtils.getMessageHeight("Menu", dummyBtnFont, g2d) / 2);
+		g2d.drawString("Screen Shot", Game.uiAssets[0].getWidth() + spacing + Game.uiAssets[3].getWidth() / 2 - DrawUtils.getMessageWidth("Screen Shot", dummyBtnFont, g2d) / 2, 
+				Game.uiAssets[3].getHeight() / 2 + DrawUtils.getMessageHeight("Screen Shot", dummyBtnFont, g2d) / 2);
+		g2d.setColor(Color.darkGray);
+		g2d.setFont(scoreFont);
+		g2d.drawString("Press smiley button to restart!", 
+				buttonPanel.getWidth() - DrawUtils.getMessageWidth("Press smiley button to restart!", scoreFont, g2d)-10, 
+				buttonPanel.getHeight() / 2 + DrawUtils.getMessageHeight("Press smiley button to restart!", scoreFont, g2d) / 2);
+		
+		g2d.dispose();
+		g.drawImage(buttonPanel, Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2, 10, null);
 	}
 	
 	private void drawGui(Graphics2D g) {

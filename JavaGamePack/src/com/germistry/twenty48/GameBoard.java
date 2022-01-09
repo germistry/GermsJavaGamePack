@@ -2,6 +2,7 @@ package com.germistry.twenty48;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -26,9 +27,9 @@ public class GameBoard {
 	private int x;
 	private int y;
 	
-	private static int SPACING = 10;
-	public static int BOARD_WIDTH = (COLS + 1) * SPACING + COLS * Tile.WIDTH;
-	public static int BOARD_HEIGHT = (ROWS + 1) * SPACING + ROWS * Tile.HEIGHT;
+	private static final int SPACING = 10;
+	public static final int BOARD_WIDTH = (COLS + 1) * SPACING + COLS * Tile.WIDTH;
+	public static final int BOARD_HEIGHT = (ROWS + 1) * SPACING + ROWS * Tile.HEIGHT;
 	
 	//for timer
 	private long elapsedMS;
@@ -137,6 +138,7 @@ public class GameBoard {
 	
 	private void createBoardImage() {
 		Graphics2D g = (Graphics2D) gameBoard.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(Color.darkGray);
 		g.fillRect(0, 0, BOARD_WIDTH, BOARD_HEIGHT);
 		g.setColor(Color.lightGray);

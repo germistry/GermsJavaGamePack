@@ -7,19 +7,21 @@ import java.awt.event.MouseMotionListener;
 import com.germistry.gui.GuiScreen;
 import com.germistry.gui.PanelName;
 import com.germistry.minesweeper.MinesListener;
+import com.germistry.pipes.PipesListener;
 
 public class Mouse implements MouseListener, MouseMotionListener{
 
 	private MinesListener minesListener;
+	private PipesListener pipesListener;
 	private GuiScreen screen;
 	private int x, y;
-	
 	
 	private static Mouse mouse;
 	
 	private Mouse( ) {
 		screen = GuiScreen.getInstance(); 
 		minesListener = MinesListener.getInstance();
+		pipesListener = PipesListener.getInstance();
 	}
 
 	public static Mouse getInstance() {
@@ -33,6 +35,9 @@ public class Mouse implements MouseListener, MouseMotionListener{
 		screen.mouseDragged(e);
 		if(screen.getCurrentPanel() == PanelName.MINESWEEPER_PLAY)
 			minesListener.mouseDragged(e);
+		if(screen.getCurrentPanel() == PanelName.PIPES_PLAY) {
+			pipesListener.mouseDragged(e);
+		}
 	}
 
 	@Override
@@ -40,6 +45,8 @@ public class Mouse implements MouseListener, MouseMotionListener{
 		screen.mouseMoved(e);
 		if(screen.getCurrentPanel() == PanelName.MINESWEEPER_PLAY)
 			minesListener.mouseMoved(e);
+		if(screen.getCurrentPanel() == PanelName.PIPES_PLAY) 
+			pipesListener.mouseMoved(e);
 	}
 
 	@Override
@@ -50,6 +57,8 @@ public class Mouse implements MouseListener, MouseMotionListener{
 		screen.mousePressed(e);
 		if(screen.getCurrentPanel() == PanelName.MINESWEEPER_PLAY)
 			minesListener.mousePressed(e);
+		if(screen.getCurrentPanel() == PanelName.PIPES_PLAY) 
+			pipesListener.mousePressed(e);
 	}
 
 	@Override
@@ -57,6 +66,8 @@ public class Mouse implements MouseListener, MouseMotionListener{
 		screen.mouseReleased(e);
 		if(screen.getCurrentPanel() == PanelName.MINESWEEPER_PLAY)
 			minesListener.mouseReleased(e);
+		if(screen.getCurrentPanel() == PanelName.PIPES_PLAY) 
+			pipesListener.mouseReleased(e);
 	}
 
 	@Override

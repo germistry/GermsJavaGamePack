@@ -16,10 +16,10 @@ import com.germistry.utils.DrawUtils;
 
 public class MainMenuPanel extends GuiPanel {
 
-	private Font titleFont = Game.main.deriveFont(72f);
-	private Font authorFont = Game.main.deriveFont(28f);
-	private Font bugLineFont = Game.main.deriveFont(14f);
-	private Font bugLineFont2 = Game.main.deriveFont(14f);
+	private Font titleFont = Game.mainBold.deriveFont(72f);
+	private Font authorFont = Game.mainBold.deriveFont(28f);
+	private Font bugLineFont = Game.mainBold.deriveFont(14f);
+	private Font bugLineFont2 = Game.mainBold.deriveFont(14f);
 	private String title = "Java Game Pack";
 	private String author = "germistry's";
 	private String bugLine = "If I look 'fuzzy' on windows 10 don't forget to change your java.exe and javaw.exe high DPI scaling property to use System!";

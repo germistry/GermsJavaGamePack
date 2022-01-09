@@ -28,10 +28,16 @@ public class Twenty48PlayPanel extends GuiPanel {
 	private BufferedImage info;
 	private ScoreManager scores;
 	private Font scoreFont;
+	private Font dummyBtnFont;
+	private Font titleFont;
+	private Font instructionFont;
 	private String timeFormatted;
 	private String bestTimeFormatted;
 	private Color bestScoreColour = new Color(0x895589);
+	private Color titleColour1 = new Color(0x4300FF);
+	private Color titleColour2 = new Color(0xC5AFFF);
 	
+	private ImageButton screenShotBtn;
 	private ImageButton returnToMain; // this is the in-game button to return to the menu
 	private ImageButton restartGame; // this is the in-game button to restart
 	
@@ -51,12 +57,16 @@ public class Twenty48PlayPanel extends GuiPanel {
 	private boolean screenshot;
 	
 	public Twenty48PlayPanel() {
-		scoreFont = Game.main.deriveFont(24f);
-		gameOverFont = Game.main.deriveFont(70f);
-		board = new GameBoard(Game.WIDTH - GameBoard.BOARD_WIDTH - 40, Game.HEIGHT / 2 - GameBoard.BOARD_HEIGHT / 2);
+		titleFont = Game.mainBold.deriveFont(75f);
+		instructionFont = Game.mainReg;
+		dummyBtnFont = Game.mainBold.deriveFont(20f);
+		scoreFont = Game.mainBold.deriveFont(24f);
+		gameOverFont = Game.mainBold.deriveFont(70f);
+		board = new GameBoard(Game.WIDTH - GameBoard.BOARD_WIDTH - 50, Game.HEIGHT / 2 - GameBoard.BOARD_HEIGHT / 2);
 		scores = board.getScores();
-		info = new BufferedImage(Game.WIDTH - GameBoard.BOARD_WIDTH - 20, Game.HEIGHT, BufferedImage.TYPE_INT_RGB);
+		info = new BufferedImage(290, Game.HEIGHT - 60, BufferedImage.TYPE_INT_RGB);
 		
+		screenShotBtn = new ImageButton(Game.uiAssets[3], Game.uiAssets[4], Game.uiAssets[5], 50, Game.HEIGHT - Game.uiAssets[3].getHeight() - 30);
 		returnToMain = new ImageButton(Game.uiAssets[0], Game.uiAssets[1], Game.uiAssets[2], 50, 30);
 		restartGame = new ImageButton(Game.uiAssets[6], Game.uiAssets[7], Game.uiAssets[8], returnToMain.getX() + returnToMain.getWidth() + spacing, 30);
 		
@@ -64,6 +74,7 @@ public class Twenty48PlayPanel extends GuiPanel {
 		restart = new GuiButton(mainMenu.getX(), mainMenu.getY() - spacing - buttonHeight, smallButtonWidth, buttonHeight);
 		screenShot = new GuiButton(restart.getX() + restart.getWidth() + spacing, restart.getY(), smallButtonWidth, buttonHeight);
 	
+		screenShotBtn.setLabelText("Screen Shot");
 		returnToMain.setLabelText("Menu");
 		restartGame.setLabelText("Restart");
 		mainMenu.setLabelText("Return to Menu");
@@ -83,6 +94,7 @@ public class Twenty48PlayPanel extends GuiPanel {
 				added = false;
 				add(returnToMain);
 				add(restartGame);
+				add(screenShotBtn);
 			}
 		});
 		restartGame.addActionListener(new ActionListener() {
@@ -99,7 +111,12 @@ public class Twenty48PlayPanel extends GuiPanel {
 				screenshot = true;
 			}
 		});
-		
+		screenShotBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				screenshot = true;
+			}
+		}); 
 		mainMenu.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -115,6 +132,7 @@ public class Twenty48PlayPanel extends GuiPanel {
 		});
 		add(returnToMain);
 		add(restartGame);
+		add(screenShotBtn);
 	}
 	@Override
 	public void update() {
@@ -155,6 +173,7 @@ public class Twenty48PlayPanel extends GuiPanel {
 				add(screenShot);
 				remove(returnToMain);
 				remove(restartGame);
+				remove(screenShotBtn);
 			}
 			drawGameOver(g);
 		}
@@ -166,6 +185,7 @@ public class Twenty48PlayPanel extends GuiPanel {
 				add(screenShot);
 				remove(returnToMain);
 				remove(restartGame);
+				remove(screenShotBtn);
 			}
 			drawGameWon(g);
 		}
@@ -202,17 +222,43 @@ public class Twenty48PlayPanel extends GuiPanel {
 		}
 		//drawing
 		Graphics2D g2d = (Graphics2D)info.getGraphics();
+		//background & dummy buttons
 		g2d.setColor(Color.white);
 		g2d.fillRect(0, 0, info.getWidth(), info.getHeight());
+		g2d.drawImage(Game.uiAssets[0], 0, 0, null);
+		g2d.drawImage(Game.uiAssets[6], 140, 0, null);
+		g2d.drawImage(Game.uiAssets[3], 0, info.getHeight() - Game.uiAssets[3].getHeight(), null);
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.setColor(Color.darkGray);
-		g2d.setFont(scoreFont);
-		g2d.drawString("Score: " + scores.getCurrentScore(), 30, 40);
-		g2d.drawString("Time: " + timeFormatted, 30, 140);
+		g2d.setFont(dummyBtnFont);
+		g2d.drawString("Menu", Game.uiAssets[0].getWidth() / 2 - DrawUtils.getMessageWidth("Menu", dummyBtnFont, g2d) / 2, 
+				Game.uiAssets[0].getHeight() / 2 + DrawUtils.getMessageHeight("Menu", dummyBtnFont, g2d) / 2);
+		g2d.drawString("Restart", 140 + Game.uiAssets[6].getWidth() / 2 - DrawUtils.getMessageWidth("Restart", dummyBtnFont, g2d) / 2, 
+				Game.uiAssets[6].getHeight() / 2 + DrawUtils.getMessageHeight("Restart", dummyBtnFont, g2d) / 2);
+		g2d.drawString("Screen Shot", Game.uiAssets[3].getWidth() / 2 - DrawUtils.getMessageWidth("Screen Shot", dummyBtnFont, g2d) / 2, 
+				info.getHeight() - Game.uiAssets[3].getHeight() + Game.uiAssets[3].getHeight() / 2 + DrawUtils.getMessageHeight("Menu", dummyBtnFont, g2d) / 2);
+		//title
+		g2d.setFont(titleFont);
+		g2d.setColor(titleColour1);
+		g2d.drawString("2", 62, 120);  
+		g2d.drawString("4", 146, 120);
+		g2d.setColor(titleColour2);
+		g2d.drawString("0", 104, 120);
+		g2d.drawString("8", 188, 120);
+		//instructions
 		g2d.setColor(bestScoreColour);
-		g2d.drawString("Best: " + scores.getCurrentTopScore(), 30, 90);
-		g2d.drawString("Fastest: " + bestTimeFormatted, 30, 190);
+		g2d.setFont(instructionFont);
+		g2d.drawString("Use the arrow keys to combine tiles ", 30, 150);
+		g2d.drawString("of the same number to reach elusive", 30, 170);
+		g2d.drawString("number 2048!", 30, 190);
+		//scores
+		g2d.setFont(scoreFont);
+		g2d.drawString("Best: " + scores.getCurrentTopScore(), 0, 280);
+		g2d.drawString("Fastest: " + bestTimeFormatted, 0, 380);
+		g2d.setColor(Color.darkGray);
+		g2d.drawString("Score: " + scores.getCurrentScore(), 0, 230);
+		g2d.drawString("Time: " + timeFormatted, 0, 330);
+	
 		g2d.dispose();
-		g.drawImage(info, 20, 90, null);
+		g.drawImage(info, 50, 30, null);
 	}
 }

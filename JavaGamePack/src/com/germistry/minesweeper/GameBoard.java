@@ -652,12 +652,7 @@ public class GameBoard extends MinesListener {
 	public boolean[][] getRevealed() {
 		return revealed;
 	}
-	public int getCellX(int col) {
-		return col * UNIT_SIZE + BOARD_EDGE;
-	}
-	public int getCellY(int row) {
-		return row * UNIT_SIZE + BOARD_EDGE;
-	}
+	
 	public boolean hasStarted() {
 		return hasStarted;
 	}

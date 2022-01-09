@@ -49,8 +49,8 @@ public class SnakePlayPanel extends GuiPanel {
 	private boolean screenshot;
 	
 	public SnakePlayPanel() {
-		scoreFont = Game.main.deriveFont(24f);
-		gameOverFont = Game.main.deriveFont(70f);
+		scoreFont = Game.mainBold.deriveFont(24f);
+		gameOverFont = Game.mainBold.deriveFont(70f);
 		board = new GameBoard(Game.WIDTH - GameBoard.BOARD_WIDTH - 20, Game.HEIGHT / 2 - GameBoard.BOARD_HEIGHT / 2);
 		scores = board.getScores();
 		info = new BufferedImage(Game.WIDTH - GameBoard.BOARD_WIDTH - 20, Game.HEIGHT, BufferedImage.TYPE_INT_RGB);

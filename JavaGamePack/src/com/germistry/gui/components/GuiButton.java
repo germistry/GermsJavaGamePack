@@ -31,7 +31,7 @@ public class GuiButton extends GuiComponent {
 	private Color hover;
 	private Color pressed;
 	
-	private Font font = Game.main.deriveFont(20f); 
+	private Font font = Game.mainBold.deriveFont(20f); 
 	//private AudioHandler audio;
 	
 	public GuiButton(int x, int y, int width, int height) {

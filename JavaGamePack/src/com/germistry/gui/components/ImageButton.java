@@ -28,7 +28,7 @@ public class ImageButton extends GuiComponent {
 	private ArrayList<ActionListener> actionListeners;
 	private String labelText = "";
 	 
-	private Font font = Game.main.deriveFont(20f); 
+	private Font font = Game.mainBold.deriveFont(20f); 
 	
 	private Image releasedImage;
 	private Image hoverImage;

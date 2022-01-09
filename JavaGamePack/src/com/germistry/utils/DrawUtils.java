@@ -89,4 +89,53 @@ public class DrawUtils {
 		formattedTime = hoursFormat + minuteFormat + ":" + secondFormat + ":" + milliFormat;
 		return formattedTime;
 	}
+	public static String formatTimeToSeconds(long millis) {
+		String formattedTime;
+		
+		String hoursFormat = "";
+		int hours = (int)(millis / 3600000);
+		if(hours >= 1) {
+			millis -= hours * 3600000;
+			if(hours < 10) {
+				hoursFormat = "0" + hours;
+			}
+			else {
+				hoursFormat = "" + hours;
+			}
+			hoursFormat += ":";
+		}
+
+		String minuteFormat;
+		int minutes = (int)(millis / 60000);
+		if(minutes >= 1) {
+			millis -= minutes * 60000;
+			if(minutes < 10) {
+				minuteFormat = "0" + minutes;
+			}
+			else {
+				minuteFormat = "" + minutes;
+			}
+		}
+		else {
+			minuteFormat = "00";
+		}
+		
+		String secondFormat;
+		int seconds = (int)(millis / 1000);
+		if(seconds >= 1) {
+			millis -= seconds * 1000;
+			if(seconds < 10) {
+				secondFormat = "0" + seconds;
+			}
+			else {
+				secondFormat = "" + seconds;
+			}
+		}
+		else {
+			secondFormat = "00";
+		}
+		
+		formattedTime = hoursFormat + minuteFormat + ":" + secondFormat;
+		return formattedTime;
+	}
 }

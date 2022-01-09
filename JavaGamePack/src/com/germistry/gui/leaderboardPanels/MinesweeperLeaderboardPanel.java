@@ -20,10 +20,10 @@ import com.germistry.utils.DrawUtils;
 
 public class MinesweeperLeaderboardPanel extends GuiPanel {
 
-	private Font packTitleFont = Game.main.deriveFont(24f);
-	private Font gameTitleFont = Game.main.deriveFont(48f);
-	private Font authorFont = Game.main;
-	private Font scoresFont = Game.main.deriveFont(28f);
+	private Font packTitleFont = Game.mainBold.deriveFont(24f);
+	private Font gameTitleFont = Game.mainBold.deriveFont(48f);
+	private Font authorFont = Game.mainBold;
+	private Font scoresFont = Game.mainBold.deriveFont(28f);
 	private String packTitle = "Java Game Pack";
 	private String gameTitle = "Minesweeper Leaderboard";
 	private String author = "germistry's";

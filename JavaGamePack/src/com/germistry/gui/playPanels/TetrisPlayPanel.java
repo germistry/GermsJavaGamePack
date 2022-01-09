@@ -30,11 +30,11 @@ public class TetrisPlayPanel extends GuiPanel {
 	private ScoreManager scores;
 	private Font scoreFont;
 	private Font dummyBtnFont;
-	private Color panelColour = new Color(0xCDB3CD);
 	private Color bestScoreColour = new Color(0x895589);
 	
 	private ImageButton returnToMain; // this is the in-game button to return to the menu
 	private ImageButton restartGame; // this is the in-game button to restart
+	private ImageButton screenShotBtn;
 	
 	//Game Over Variables
 	private GuiButton restart;
@@ -52,25 +52,28 @@ public class TetrisPlayPanel extends GuiPanel {
 	private boolean screenshot;
 	
 	public TetrisPlayPanel() {
-		dummyBtnFont = Game.main.deriveFont(20f);
-		scoreFont = Game.main.deriveFont(24f);
-		gameOverFont = Game.main.deriveFont(70f);
+		dummyBtnFont = Game.mainBold.deriveFont(20f);
+		scoreFont = Game.mainBold.deriveFont(24f);
+		gameOverFont = Game.mainBold.deriveFont(70f);
 		board = new GameBoard(Game.WIDTH / 2 - GameBoard.BOARD_WIDTH / 2 + 50, Game.HEIGHT / 2 - GameBoard.BOARD_HEIGHT / 2);
 		scores = board.getScores();
-		infoLeft = new BufferedImage(Game.WIDTH /2 - 20, Game.HEIGHT, BufferedImage.TYPE_INT_RGB);
-		infoRight = new BufferedImage(Game.WIDTH / 2 - 20, Game.HEIGHT, BufferedImage.TYPE_INT_RGB);
+		infoLeft = new BufferedImage(290, Game.HEIGHT - 60, BufferedImage.TYPE_INT_RGB);
+		infoRight = new BufferedImage(190, Game.HEIGHT - 60, BufferedImage.TYPE_INT_RGB);
 		returnToMain = new ImageButton(Game.uiAssets[0], Game.uiAssets[1], Game.uiAssets[2], 50, 30);
 		restartGame = new ImageButton(Game.uiAssets[6], Game.uiAssets[7], Game.uiAssets[8], returnToMain.getX() + returnToMain.getWidth() + spacing, 30);
+		screenShotBtn = new ImageButton(Game.uiAssets[3], Game.uiAssets[4], Game.uiAssets[5], Game.WIDTH - GameBoard.BOARD_WIDTH, Game.HEIGHT - Game.uiAssets[3].getHeight() - 30);
 		
 		mainMenu = new GuiButton(Game.WIDTH / 2 - largeButtonWidth / 2, 350, largeButtonWidth, buttonHeight);
 		restart = new GuiButton(mainMenu.getX(), mainMenu.getY() - spacing - buttonHeight, smallButtonWidth, buttonHeight);
 		screenShot = new GuiButton(restart.getX() + restart.getWidth() + spacing, restart.getY(), smallButtonWidth, buttonHeight);
 	
 		returnToMain.setLabelText("Menu");
+		screenShotBtn.setLabelText("Screen Shot");
 		restartGame.setLabelText("Restart");
 		mainMenu.setLabelText("Return to Menu");
 		restart.setLabelText("Restart");
 		screenShot.setLabelText("Screen Shot");
+		
 		
 		restart.addActionListener(new ActionListener() {
 			@Override
@@ -85,6 +88,7 @@ public class TetrisPlayPanel extends GuiPanel {
 				added = false;
 				add(returnToMain);
 				add(restartGame);
+				add(screenShotBtn);
 			}
 		});
 		restartGame.addActionListener(new ActionListener() {
@@ -101,6 +105,12 @@ public class TetrisPlayPanel extends GuiPanel {
 				screenshot = true;
 			}
 		});
+		screenShotBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				screenshot = true;
+			}
+		}); 
 		
 		mainMenu.addActionListener(new ActionListener() {
 			@Override
@@ -119,6 +129,7 @@ public class TetrisPlayPanel extends GuiPanel {
 		});
 		add(returnToMain);
 		add(restartGame);
+		add(screenShotBtn);
 	}
 	@Override
 	public void update() {
@@ -161,6 +172,7 @@ public class TetrisPlayPanel extends GuiPanel {
 				add(screenShot);
 				remove(returnToMain);
 				remove(restartGame);
+				remove(screenShotBtn);
 			}
 			drawGameOver(g);
 		}
@@ -184,15 +196,20 @@ public class TetrisPlayPanel extends GuiPanel {
 		g2d.drawImage(Game.uiAssets[0], 0, 0, null);
 		g2d.drawImage(Game.uiAssets[6], 140, 0, null);
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.setColor(Color.white);
 		g2d.setFont(dummyBtnFont);
 		g2d.drawString("Menu", Game.uiAssets[0].getWidth() / 2 - DrawUtils.getMessageWidth("Menu", dummyBtnFont, g2d) / 2, 
 				Game.uiAssets[0].getHeight() / 2 + DrawUtils.getMessageHeight("Menu", dummyBtnFont, g2d) / 2);
 		g2d.drawString("Restart", 140 + Game.uiAssets[6].getWidth() / 2 - DrawUtils.getMessageWidth("Restart", dummyBtnFont, g2d) / 2, 
 				Game.uiAssets[6].getHeight() / 2 + DrawUtils.getMessageHeight("Restart", dummyBtnFont, g2d) / 2);
-		g2d.setColor(panelColour);
-		g2d.fillRect(0, 70, 140 + Game.uiAssets[6].getWidth(), 140 + Game.uiAssets[6].getWidth());
-		
+		g2d.drawImage(Game.tetrisAssets[0], 0, 70, null);
+		g2d.drawImage(Game.tetrisAssets[1], infoLeft.getWidth() / 2 - Game.tetrisAssets[1].getWidth() / 2, 220, null);
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2d.setColor(Color.darkGray);
+		g2d.setFont(dummyBtnFont);
+		g2d.drawString("Rotate", infoLeft.getWidth() / 2 - DrawUtils.getMessageWidth("Rotate", dummyBtnFont, g2d) / 2, 222);
+		g2d.drawString("Move Left", 8, 284);
+		g2d.drawString("Move Right", infoLeft.getWidth() - DrawUtils.getMessageWidth("Move Right", dummyBtnFont, g2d), 284);
+		g2d.drawString("Drop", infoLeft.getWidth() / 2 - DrawUtils.getMessageWidth("Drop", dummyBtnFont, g2d) / 2, 382);
 		g2d.dispose();
 		g.drawImage(infoLeft, 50, 30, null);
 	}
@@ -209,7 +226,9 @@ public class TetrisPlayPanel extends GuiPanel {
             for (int col = 0; col < GameBoard.nextShape.getCoords()[0].length; col++) {
                 if (GameBoard.nextShape.getCoords()[row][col] != 0) {
                 	g2d.setColor(new Color(GameBoard.nextShape.getColour()));
-                	g2d.fillRect(col * GameBoard.UNIT_SIZE, row * GameBoard.UNIT_SIZE + 50, GameBoard.UNIT_SIZE, GameBoard.UNIT_SIZE);
+                	g2d.fillRect(col * GameBoard.UNIT_SIZE + 10, row * GameBoard.UNIT_SIZE + 50, GameBoard.UNIT_SIZE, GameBoard.UNIT_SIZE);
+                	g2d.setColor(Color.lightGray);
+                	g2d.drawRect(col * GameBoard.UNIT_SIZE + 9, row * GameBoard.UNIT_SIZE + 49, GameBoard.UNIT_SIZE, GameBoard.UNIT_SIZE);
                 }
             }
         }
@@ -219,6 +238,12 @@ public class TetrisPlayPanel extends GuiPanel {
 		g2d.drawString("Score: "+ scores.getCurrentScore(), 0, 170);
 		g2d.setColor(bestScoreColour);
 		g2d.drawString("Best: " + scores.getCurrentTopScore(), 0, 220);
+		g2d.drawImage(Game.uiAssets[3], 0, 404, null);
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2d.setColor(Color.white);
+		g2d.setFont(dummyBtnFont);
+		g2d.drawString("Screen Shot", Game.uiAssets[3].getWidth() / 2 - DrawUtils.getMessageWidth("Screen Shot", dummyBtnFont, g2d) / 2, 
+				404 + Game.uiAssets[3].getHeight() / 2 + DrawUtils.getMessageHeight("Menu", dummyBtnFont, g2d) / 2);
 		g2d.dispose();
 		g.drawImage(infoRight, Game.WIDTH - GameBoard.BOARD_WIDTH, 30, null);
 	}

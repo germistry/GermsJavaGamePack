@@ -323,6 +323,7 @@ public class GameBoard {
 		return lost;
 	}
 	public void setLost(boolean lost) {
+		shapesCanMove = false;
 		//ie if not set to lost but you have lost ...
 		if(!this.lost && lost) {
 			leaderboard.addTopTetrisScore(scores.getCurrentScore());
@@ -334,7 +335,7 @@ public class GameBoard {
 		return hasStarted;
 	}
 	public void setHasStarted(boolean hasStarted) {
-		//snakeCanMove = true;
+		shapesCanMove = true;
 		this.hasStarted = hasStarted;
 	}
 	public boolean shapesCanMove() {

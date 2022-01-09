@@ -58,7 +58,7 @@ public class Tile {
 			transform.scale(scaleFirst, scaleFirst);
 			//drawing
 			Graphics2D g2d = (Graphics2D)firstImage.getGraphics();
-			g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setColor(new Color(0,0,0,0));
 			g2d.fillRect(0, 0, WIDTH, HEIGHT);
 			g2d.drawImage(tileImage, transform, null);
@@ -163,10 +163,10 @@ public class Tile {
 		
 		g.setColor(foreground);
 		if(value <= 64) {
-			font = Game.main.deriveFont(36f);
+			font = Game.mainBold.deriveFont(36f);
 		}
 		else {
-			font = Game.main.deriveFont(32f);
+			font = Game.mainBold.deriveFont(32f);
 		}
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setFont(font);	
