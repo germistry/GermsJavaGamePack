@@ -47,7 +47,16 @@ public class GameBoard extends PipesListener {
 	private boolean fluidCanFlow = false;
 	private int pipeCount;  //number of pipes used
 	private ArrayList<Pipe> waterPath = new ArrayList<Pipe>();
-
+	
+	private int pipeFilling, pipesFilled;
+	private int counter;
+	private int cycles;
+	private ArrayList<Integer> waterFlowX = new ArrayList<Integer>(); 
+	private ArrayList<Integer> waterFlowY = new ArrayList<Integer>();
+	//private int direction;  // 0 down, 1 up, 2 right, 3 left
+	private int[] xDir = {0, 0, 1, -1};  //right - left
+	private int[] yDir = {1, -1, 0, 0};  //down - up
+	
 	private int numberPipes = 7;
 	private Pipe[] pipeOptions = new Pipe[numberPipes];
 	public static Pipe currentPipe, option1Pipe, option2Pipe, option3Pipe;
@@ -119,6 +128,12 @@ public class GameBoard extends PipesListener {
 		fluidCanFlow = false;
 		if(!waterPath.isEmpty()) 
 			waterPath.clear();
+		if(!waterFlowX.isEmpty())
+			waterFlowX.clear();
+		if(!waterFlowY.isEmpty()) 
+			waterFlowY.clear();
+		counter = 0;
+		cycles = 0;
 		pipeCount = 0;
 		start();
 		scores.saveGame();
@@ -160,25 +175,25 @@ public class GameBoard extends PipesListener {
 		if(scores.getCurrentScore() > scores.getCurrentTopScore()) {
 			scores.setCurrentTopScore(scores.getCurrentScore());
 		}
-		if(scores.getTime() > 15 * 1000) {
-			Pipe first = waterPath.get(0);
-			first.setStartFlow(true);
-			first.update();
-			if(waterPath.size() >= 2 && first.isPipeFull()) {
-				Pipe second = waterPath.get(1);
-				second.setStartFlow(true);
-				second.update();
-			}
-			else {
-				//set lost
-			}
+		if(scores.getTime() > 15 * 1000 && hasStarted) {
+			updateWaterFlow();
 		}
-		
 	}
 	public void render(Graphics2D g) {
 		Graphics2D g2d = (Graphics2D) finalBoard.getGraphics();
 		g2d.drawImage(gameBoard, 0, 0, null);
-		
+		if(fluidCanFlow) {
+			if(waterFlowX.isEmpty() || waterFlowY.isEmpty()) {
+				String excMsg = "x or y coordinates do not exist!";
+				throw new IllegalStateException(excMsg);
+				
+			}
+			else {		
+				for (int i = 0; i < waterFlowX.size(); i++) {
+					g2d.drawImage(waterAssets[0], waterFlowX.get(i), waterFlowY.get(i), null);
+				}
+			}
+		}
 		for(int row = 0; row < ROWS; row++) {
 			for(int col = 0; col < COLS; col++) {
 				Pipe current = board[row][col];
@@ -251,6 +266,8 @@ public class GameBoard extends PipesListener {
 		}	
 		board[row][col] = tap;
 		waterPath.add(board[row][col]);
+		waterFlowX.add(col * UNIT_SIZE + 12);
+		waterFlowY.add(row * UNIT_SIZE + 12);
 	}
 	private void spawnDrain() {
 		int row = 1 + random.nextInt(ROWS - 2);
@@ -295,6 +312,145 @@ public class GameBoard extends PipesListener {
 			board[row][col] = drain;
 		}
 	}
+		
+	private void updateWaterFlow() {
+		fluidCanFlow = true;
+		Pipe current = waterPath.get(0);
+		current.setStartFlow(true);
+		cycles++;
+		if(cycles % 8 == 0 && !current.isPipeFull()) {
+			counter++;
+			moveWater(current.getFlowDirection());	
+		}
+		if (counter > 63) {
+			current.setStartFlow(false); 
+			current.setPipeFull(true);
+			pipesFilled = 1;
+			Pipe next = waterPath.get(1);
+			next.setStartFlow(true);
+			if(cycles % 8 == 0 && !next.isPipeFull()) {
+				counter++;
+				moveWater(next.getFlowDirection());	
+			}
+			if (counter > 127) {
+				next.setStartFlow(false); 
+				next.setPipeFull(true);
+				pipesFilled = 2;
+				Pipe third = waterPath.get(2);
+				third.setStartFlow(true);
+				if(cycles % 8 == 0 && !third.isPipeFull()) {
+					counter++;
+					moveWater(third.getFlowDirection());	
+				}
+
+			}
+
+		}
+		
+	}
+	
+	private void moveWater(int flowDirection) {
+		switch(flowDirection) {
+		case 1: //straight flowing up
+			waterFlowX.add(0, waterFlowX.get(0) + xDir[1]);
+			waterFlowY.add(0, waterFlowY.get(0) + yDir[1]);
+			break;
+		case 2: //straight flowing down
+			waterFlowX.add(0, waterFlowX.get(0) + xDir[0]);
+			waterFlowY.add(0, waterFlowY.get(0) + yDir[0]);
+			break;
+		case 3: //straight flowing left
+			waterFlowX.add(0, waterFlowX.get(0) + xDir[3]);
+			waterFlowY.add(0, waterFlowY.get(0) + yDir[3]);
+			break;
+		case 4: //straight flowing right 
+			waterFlowX.add(0, waterFlowX.get(0) + xDir[2]);
+			waterFlowY.add(0, waterFlowY.get(0) + yDir[2]);
+			break;
+		case 5: //elbow flow up then to left
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[1]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[1]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[3]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[3]);
+			}
+			break;
+		case 6: //elbow flow up then to right
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[1]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[1]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[2]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[2]);
+			}
+			break;
+		case 7: //elbow flow down then to left
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[0]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[0]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[3]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[3]);
+			}
+			break;
+		case 8: //elbow flow down then to right 
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[0]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[0]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[2]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[2]);
+			}
+			break;
+		case 9: //elbow flow right then up 
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[2]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[2]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[1]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[1]);
+			}
+			break;
+		case 10: //elbow flow right then down 
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[2]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[2]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[0]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[0]);
+			}
+			break;
+		case 11: //elbow flow left then up 
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[3]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[3]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[1]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[1]);
+			}
+			break;
+		case 12: //elbow flow left then down
+			if(counter <= 45) {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[3]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[3]);
+			}
+			else {
+				waterFlowX.add(0, waterFlowX.get(0) + xDir[0]);
+				waterFlowY.add(0, waterFlowY.get(0) + yDir[0]);
+			}
+			break;
+		}
+	}
+
+
 	//0 no flow, 1 flowing from bottom to top, 2 flowing top to bottom, 3 flowing right to left, 4 flowing left to right
 	//5 flowing bottom to left, 6 flowing bottom to right, 7 flowing top to left, 8 flowing top to right, 9 flowing left to top,
 	//10 flowing left to bottom, 11 flowing right to top, 12 flowing right to bottom - see my shape diagram!
@@ -448,8 +604,11 @@ public class GameBoard extends PipesListener {
 	}
 	private void refreshWaterPath() {
 		if(!waterPath.isEmpty()) {
-			if(waterPath.size() > 1) {
+			if(waterPath.size() > 1 && !fluidCanFlow) {
 				waterPath.subList(1, waterPath.size()).clear();
+			}
+			else {
+				
 			}
 		}
 		updateWaterPath(waterPath.get(0));
