@@ -135,7 +135,6 @@ public class PipesPlayPanel extends GuiPanel {
 	@Override
 	public void update() {
 		board.update();
-		updateNextPipes();
 		if(board.hasLost() || board.hasWon()) {
 			alpha++;
 			if(alpha > 170) alpha = 170;
@@ -236,19 +235,14 @@ public class PipesPlayPanel extends GuiPanel {
 		g2d.setColor(bestScoreColour);
 		//scores
 		g2d.setFont(scoreFont);
-		g2d.drawString("Best: " + scores.getCurrentTopScore(), 0, 350);
+		g2d.drawString("Pipes: " + scores.getPipeCount(), 0, 350);
 		g2d.setColor(Color.darkGray);
-		g2d.drawString("Score: " + scores.getCurrentScore(), 0, 310);
 		g2d.drawString("Time: " + timeFormatted, 0, 390);
 	
 		g2d.dispose();
 		g.drawImage(info, 30, Game.HEIGHT / 2 - GameBoard.BOARD_HEIGHT / 2, null);
 	}
-	
-	private void updateNextPipes() {
 		
-	}
-	
 	private void drawNextPipes(Graphics2D g) {
 		//next tiles
 		Graphics2D g2d = (Graphics2D)nextPipes.getGraphics();

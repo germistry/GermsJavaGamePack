@@ -24,7 +24,6 @@ public class LeaderBoard {
 	private ArrayList<Integer> topMinesweeperMineCount;
 	private ArrayList<Long> topMinesweeperTimes;
 	private ArrayList<Integer> topTetrisScores;
-	private ArrayList<Integer> topPipesScores;
 	private ArrayList<Integer> topNumberPipes;
 	private ArrayList<Long> topPipesTimes;
 
@@ -38,7 +37,6 @@ public class LeaderBoard {
 		topMinesweeperMineCount = new ArrayList<Integer>();
 		topMinesweeperTimes = new ArrayList<Long>();
 		topTetrisScores = new ArrayList<Integer>();
-		topPipesScores = new ArrayList<Integer>();
 		topNumberPipes = new ArrayList<Integer>();
 		topPipesTimes = new ArrayList<Long>();
 	}
@@ -115,16 +113,6 @@ public class LeaderBoard {
 			}
 		}
 	}
-	
-	public void addTopPipesScore(int score) {
-		for(int i = 0; i < topPipesScores.size(); i++) {
-			if (score >= topPipesScores.get(i)) {
-				topPipesScores.add(i, score);
-				topPipesScores.remove(topPipesScores.size() - 1);
-				return;
-			}
-		}
-	}
 	public void addTopNumberPipes(int tileValue) {
 		for(int i = 0; i < topNumberPipes.size(); i++) {
 			if (tileValue >= topNumberPipes.get(i)) {
@@ -158,7 +146,6 @@ public class LeaderBoard {
 			topMinesweeperMineCount.clear();
 			topMinesweeperTimes.clear();
 			topTetrisScores.clear();
-			topPipesScores.clear();
 			topNumberPipes.clear();
 			topPipesTimes.clear();
 			String[] twenty48Scores = reader.readLine().split("-");
@@ -168,7 +155,6 @@ public class LeaderBoard {
 			String[] minesweeperMineCount = reader.readLine().split("-");
 			String[] minesweeperTimes = reader.readLine().split("-");
 			String[] tetrisScores = reader.readLine().split("-");
-			String[] pipesScores = reader.readLine().split("-");
 			String[] numberPipes = reader.readLine().split("-");
 			String[] pipesTimes = reader.readLine().split("-");
 			for(int i = 0; i < twenty48Scores.length; i++) {
@@ -191,9 +177,6 @@ public class LeaderBoard {
 			}
 			for(int i = 0; i < tetrisScores.length; i++) {
 				topTetrisScores.add(Integer.parseInt(tetrisScores[i]));
-			}
-			for(int i = 0; i < pipesScores.length; i++) {
-				topPipesScores.add(Integer.parseInt(pipesScores[i]));
 			}
 			for(int i = 0; i < numberPipes.length; i++) {
 				topNumberPipes.add(Integer.parseInt(numberPipes[i]));
@@ -235,9 +218,6 @@ public class LeaderBoard {
 			//top tetris scores
 			writer.write(topTetrisScores.get(0) + "-" + topTetrisScores.get(1) + "-" + topTetrisScores.get(2) + "-" + topTetrisScores.get(3) + "-" + topTetrisScores.get(4));
 			writer.newLine();
-			//top pipes scores
-			writer.write(topPipesScores.get(0) + "-" + topPipesScores.get(1) + "-" + topPipesScores.get(2) + "-" + topPipesScores.get(3) + "-" + topPipesScores.get(4));
-			writer.newLine();
 			//top number pipes
 			writer.write(topNumberPipes.get(0) + "-" + topNumberPipes.get(1) + "-" + topNumberPipes.get(2) + "-" + topNumberPipes.get(3) + "-" + topNumberPipes.get(4));
 			writer.newLine();
@@ -278,9 +258,6 @@ public class LeaderBoard {
 			//top tetris scores
 			writer.write("0-0-0-0-0");
 			writer.newLine();
-			//top pipes scores
-			writer.write("0-0-0-0-0");
-			writer.newLine();
 			//top number pipes
 			writer.write("0-0-0-0-0");
 			writer.newLine();
@@ -314,9 +291,6 @@ public class LeaderBoard {
 	public int getTetrisHighScore() {
 		return topTetrisScores.get(0);
 	}
-	public int getPipesHighScore() {
-		return topPipesScores.get(0);
-	}
 	public int getHighestNumberPipes() {
 		return topNumberPipes.get(0);
 	}
@@ -333,10 +307,6 @@ public class LeaderBoard {
 
 	public int getTetrisScoreAtIndex(int index) {
 		return topTetrisScores.get(index);
-	}
-
-	public int getPipesScoreAtIndex(int index) {
-		return topPipesScores.get(index);
 	}
 
 	public ArrayList<Integer> getTop2048Scores() {
@@ -363,9 +333,6 @@ public class LeaderBoard {
 	}
 	public ArrayList<Integer> getTopTetrisScores() {
 		return topTetrisScores;
-	}
-	public ArrayList<Integer> getTopPipesScores() {
-		return topPipesScores;
 	}
 
 	public ArrayList<Integer> getTopNumberPipes() {

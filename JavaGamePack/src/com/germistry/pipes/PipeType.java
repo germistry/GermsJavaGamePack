@@ -17,8 +17,8 @@ public enum PipeType {
 	TAP_WEST(GameBoard.gameAssets[2], false, true, false, false),
 	DRAIN_NORTH(GameBoard.gameAssets[4], true, false, false, false),
 	DRAIN_SOUTH(GameBoard.gameAssets[7], false, false, true, false),
-	DRAIN_EAST(GameBoard.gameAssets[5], false, false, false, true),
-	DRAIN_WEST(GameBoard.gameAssets[6], false, true, false, false);
+	DRAIN_EAST(GameBoard.gameAssets[5], false, true, false, false),
+	DRAIN_WEST(GameBoard.gameAssets[6], false, false, false, true);
 	
 	BufferedImage image;
 	boolean pipehasTop; // Top outlet flag

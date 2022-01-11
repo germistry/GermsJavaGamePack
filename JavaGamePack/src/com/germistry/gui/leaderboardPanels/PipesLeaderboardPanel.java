@@ -33,14 +33,12 @@ public class PipesLeaderboardPanel extends GuiPanel {
 	private int verticalSpacing = 40;
 	
 	private enum InfoPanel {
-		SCORES,
 		PIPES,
 		TIMES
 	}
-	private InfoPanel currentPanel = InfoPanel.SCORES;
+	private InfoPanel currentPanel = InfoPanel.PIPES;
 	
-	private LeaderBoard leaderboard;
-	private ArrayList<Integer> topScores;	
+	private LeaderBoard leaderboard;	
 	private ArrayList<Integer> topPipes;
 	private ArrayList<Long> topTimes;
 	private BufferedImage info;
@@ -51,8 +49,6 @@ public class PipesLeaderboardPanel extends GuiPanel {
 		super();
 		leaderboard = LeaderBoard.getInstance();
 		leaderboard.loadTopScores();
-		topScores = new ArrayList<Integer>();
-		topScores = leaderboard.getTopPipesScores();
 		topPipes = new ArrayList<Integer>();
 		topPipes = leaderboard.getTopNumberPipes();
 		topTimes = new ArrayList<Long>();
@@ -60,12 +56,10 @@ public class PipesLeaderboardPanel extends GuiPanel {
 		info = new BufferedImage(infoWidth, infoHeight, BufferedImage.TYPE_INT_RGB);
 		GuiButton mainMenuButton = new GuiButton(Game.WIDTH / 2 - buttonWidth / 2, Game.HEIGHT - buttonHeight - horizontalSpacing, buttonWidth, buttonHeight);
 		GuiButton pipesButton = new GuiButton(Game.WIDTH / 2 - buttonWidth / 2, 120, buttonWidth, buttonHeight);
-		GuiButton scoresButton = new GuiButton(pipesButton.getX() - horizontalSpacing - buttonWidth, 120, buttonWidth, buttonHeight);
 		GuiButton timesButton = new GuiButton(pipesButton.getX() + horizontalSpacing + buttonWidth, 120, buttonWidth, buttonHeight);
 		
 		mainMenuButton.setLabelText("Main Menu");
 		pipesButton.setLabelText("Pipes");
-		scoresButton.setLabelText("Scores");
 		timesButton.setLabelText("Times");
 		
 		mainMenuButton.addActionListener(new ActionListener() {
@@ -81,12 +75,6 @@ public class PipesLeaderboardPanel extends GuiPanel {
 				currentPanel = InfoPanel.PIPES;
 			}
 		});
-		scoresButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				currentPanel = InfoPanel.SCORES;
-			}
-		});
 		timesButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -96,9 +84,7 @@ public class PipesLeaderboardPanel extends GuiPanel {
 		
 		add(mainMenuButton);
 		add(pipesButton);
-		add(scoresButton);
 		add(timesButton);
-		
 	}
 	
 	@Override
@@ -125,19 +111,7 @@ public class PipesLeaderboardPanel extends GuiPanel {
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setFont(scoresFont);
 		g2d.setColor(Color.black);
-		if(currentPanel == InfoPanel.SCORES) {
-			for (int i = 0; i < topScores.size(); i++) {
-				if (topScores.get(i) != 0) {
-					String s = (i + 1) + ". " + topScores.get(i);
-					g2d.drawString(s, 0, DrawUtils.getMessageHeight(s, scoresFont, g2d) + i * verticalSpacing);
-				}
-				else {
-					String s = (i + 1) + ". ";
-					g2d.drawString(s, 0, DrawUtils.getMessageHeight(s, scoresFont, g2d) + i * verticalSpacing);
-				}
-			}	
-		}
-		else if(currentPanel == InfoPanel.PIPES) {
+		if(currentPanel == InfoPanel.PIPES) {
 			for (int i = 0; i < topPipes.size(); i++) {
 				if (topPipes.get(i) != 0) { 
 					String s = (i + 1) + ". " + topPipes.get(i);

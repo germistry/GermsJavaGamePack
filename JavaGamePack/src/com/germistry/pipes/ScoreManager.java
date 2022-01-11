@@ -12,11 +12,10 @@ import com.germistry.utils.FileUtils;
 public class ScoreManager {
 
 	//current scores
-	private int currentScore;
-	private int currentTopScore;
 	private long time;
 	private long startingTime;
 	private long bestTime;
+	private int pipeCount;
 	
 	private int[] board = new int[GameBoard.ROWS * GameBoard.COLS];
 	
@@ -40,7 +39,6 @@ public class ScoreManager {
 		}
 		newGame = true;
 		setStartingTime(0);
-		currentScore = 0;
 		time = 0;
 	}
 		
@@ -51,17 +49,14 @@ public class ScoreManager {
 			File f = new File(filePath, temp);
 			output = new FileWriter(f);
 			BufferedWriter writer = new BufferedWriter(output);
-			//current score
-			writer.write("" + 0);
-			writer.newLine();
-			//current top score
-			writer.write("" + 0);
-			writer.newLine();
 			//time 
 			writer.write("" + 0);
 			writer.newLine();
 			//best time
 			writer.write("" + 0);
+			writer.newLine();
+			//pipeCount
+			writer.write("" + 1);
 			writer.newLine();
 			//game board int[]
 //			for(int row = 0; row < GameBoard.ROWS; row++) {
@@ -88,13 +83,11 @@ public class ScoreManager {
 			File f = new File(filePath, temp);
 			output = new FileWriter(f);
 			BufferedWriter writer = new BufferedWriter(output);
-			writer.write("" + currentScore);
-			writer.newLine();
-			writer.write("" + currentTopScore);
-			writer.newLine();
 			writer.write("" + time);
 			writer.newLine();
 			writer.write("" + bestTime);
+			writer.newLine();
+			writer.write("" + pipeCount);
 			writer.newLine();
 //			for(int row = 0; row < GameBoard.ROWS; row++) {
 //				for(int col = 0; col < GameBoard.COLS; col++) {
@@ -127,11 +120,10 @@ public class ScoreManager {
 				createFile();
 			}
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
-			currentScore = Integer.parseInt(reader.readLine());
-			currentTopScore = Integer.parseInt(reader.readLine());
 			time = Long.parseLong(reader.readLine());
 			setStartingTime(time);
 			bestTime = Long.parseLong(reader.readLine());
+			pipeCount = Integer.parseInt(reader.readLine());
 //			String[] boardString = reader.readLine().split("-");
 //			for(int i = 0; i < boardString.length; i++) {
 //				this.board[i] = Integer.parseInt(boardString[i]);
@@ -142,17 +134,11 @@ public class ScoreManager {
 			e.printStackTrace();
 		}
 	}
-	public int getCurrentScore() {
-		return currentScore;
+	public int getPipeCount() {
+		return pipeCount;
 	}
-	public void setCurrentScore(int currentScore) {
-		this.currentScore = currentScore;
-	}
-	public int getCurrentTopScore() {
-		return currentTopScore;
-	}
-	public void setCurrentTopScore(int currentTopScore) {
-		this.currentTopScore = currentTopScore;
+	public void setPipeCount(int pipeCount) {
+		this.pipeCount = pipeCount;
 	}
 	public long getTime() {
 		return time;

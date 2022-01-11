@@ -48,7 +48,7 @@ public class GameBoard extends PipesListener {
 	private int pipeCount;  //number of pipes used
 	private ArrayList<Pipe> waterPath = new ArrayList<Pipe>();
 	
-	private int pipeFilling, pipesFilled;
+	private int pipesFilled; // number of pipes filled
 	private int counter;
 	private int cycles;
 	private ArrayList<Integer> waterFlowX = new ArrayList<Integer>(); 
@@ -73,6 +73,7 @@ public class GameBoard extends PipesListener {
 	public GameBoard(int x, int y) {
 		this.x = x;
 		this.y = y;
+		pipeCount = 1;
 		pipesListener = PipesListener.getInstance();
 		pipesListener.add(this);
 		gameBoard = new BufferedImage(BOARD_WIDTH, BOARD_HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -108,7 +109,6 @@ public class GameBoard extends PipesListener {
 		scores = new ScoreManager(this);
 		scores.loadGame();
 		scores.setBestTime(leaderboard.getPipesFastestTime());
-		scores.setCurrentTopScore(leaderboard.getPipesHighScore());
 		if(scores.newGame()) {
 			start();
 			scores.saveGame();
@@ -134,9 +134,11 @@ public class GameBoard extends PipesListener {
 			waterFlowY.clear();
 		counter = 0;
 		cycles = 0;
-		pipeCount = 0;
+		pipeCount = 1;
+		pipesFilled = 0;
 		start();
 		scores.saveGame();
+		scores.setPipeCount(pipeCount);
 		lost = false;
 		won = false;
 		hasStarted = false;
@@ -171,11 +173,9 @@ public class GameBoard extends PipesListener {
 				scores.setTime(elapsedMS);
 			}
 		}
-
-		if(scores.getCurrentScore() > scores.getCurrentTopScore()) {
-			scores.setCurrentTopScore(scores.getCurrentScore());
-		}
+		scores.setPipeCount(pipeCount);
 		if(scores.getTime() > 15 * 1000 && hasStarted) {
+			fluidCanFlow = true;
 			updateWaterFlow();
 		}
 	}
@@ -312,9 +312,8 @@ public class GameBoard extends PipesListener {
 			board[row][col] = drain;
 		}
 	}
-		
+	
 	private void updateWaterFlow() {
-		fluidCanFlow = true;
 		Pipe current = waterPath.get(0);
 		current.setStartFlow(true);
 		cycles++;
@@ -326,27 +325,31 @@ public class GameBoard extends PipesListener {
 			current.setStartFlow(false); 
 			current.setPipeFull(true);
 			pipesFilled = 1;
-			Pipe next = waterPath.get(1);
-			next.setStartFlow(true);
-			if(cycles % 8 == 0 && !next.isPipeFull()) {
-				counter++;
-				moveWater(next.getFlowDirection());	
+			if(waterPath.size() == 1) {
+				setLost(true);
+				return;
 			}
-			if (counter > 127) {
-				next.setStartFlow(false); 
-				next.setPipeFull(true);
-				pipesFilled = 2;
-				Pipe third = waterPath.get(2);
-				third.setStartFlow(true);
-				if(cycles % 8 == 0 && !third.isPipeFull()) {
-					counter++;
-					moveWater(third.getFlowDirection());	
-				}
-
-			}
-
+			updateNext(1);
 		}
-		
+	}
+	
+	private void updateNext(int index) {
+		Pipe next = waterPath.get(index);
+		next.setStartFlow(true);
+		if(cycles % 8 == 0 && !next.isPipeFull()) {
+			counter++;
+			moveWater(next.getFlowDirection());	
+		}
+		if (counter > index * 64 + 63) {
+			next.setStartFlow(false); 
+			next.setPipeFull(true);
+			pipesFilled = index + 1;
+			if(waterPath.size() == index + 1) {
+				setLost(true);
+				return;
+			}
+			updateNext(index + 1);
+		}
 	}
 	
 	private void moveWater(int flowDirection) {
@@ -471,27 +474,28 @@ public class GameBoard extends PipesListener {
 				if(nextPipeType.pipehasTop()) {
 					//bottom to top
 					nextPipe.setFlowDirection(1);
-					//dir = 1; 
+					waterPath.add(nextPipe);	
 				}
 				else if(nextPipeType.pipehasLeft()) {
 					//bottom to left
 					nextPipe.setFlowDirection(5);
-					//dir = 3;
+					waterPath.add(nextPipe);
 				}
 				else if(nextPipeType.pipehasRight()) {
 					//bottom to right
 					nextPipe.setFlowDirection(6);
-					//dir = 2;
+					waterPath.add(nextPipe);
 				}
 				else {
-					//is drain south
-				}
-				waterPath.add(nextPipe);				
+					nextPipe.setFlowDirection(1);
+					waterPath.add(nextPipe);
+					return;
+				}				
 				updateWaterPath(waterPath.get(waterPath.size() - 1));
 			}
 		}
 		//flowing to bottom ie. top to bottom, left to bottom, right to bottom, cross top to bottom 
-		else if (source.getFlowDirection() == 2 || source.getFlowDirection() == 10 || source.getFlowDirection() == 1) {
+		else if (source.getFlowDirection() == 2 || source.getFlowDirection() == 10 || source.getFlowDirection() == 12) {
 			if(source.getRow() == ROWS -1 )
 				return;
 			//check below
@@ -502,19 +506,26 @@ public class GameBoard extends PipesListener {
 				return;
 			else {
 				Pipe nextPipe = board[source.getRow() + 1][source.getCol()];
-				if(nextPipeType.pipehasBottom()) 
+				if(nextPipeType.pipehasBottom()) {
 					//top to bottom
 					nextPipe.setFlowDirection(2);
-				else if(nextPipeType.pipehasLeft()) 
+					waterPath.add(nextPipe);
+				}
+				else if(nextPipeType.pipehasLeft()) { 
 					//top to left
 					nextPipe.setFlowDirection(7);
-				else if(nextPipeType.pipehasRight()) 
+					waterPath.add(nextPipe);
+				}
+				else if(nextPipeType.pipehasRight()) { 
 					//top to right
 					nextPipe.setFlowDirection(8);
-				else {
-					//is drain north
+					waterPath.add(nextPipe);
 				}
-				waterPath.add(nextPipe);
+				else {
+					nextPipe.setFlowDirection(2);
+					waterPath.add(nextPipe);
+					return;
+				}
 				updateWaterPath(waterPath.get(waterPath.size() - 1));
 			}
 		}
@@ -530,19 +541,26 @@ public class GameBoard extends PipesListener {
 				return;
 			else {
 				Pipe nextPipe = board[source.getRow()][source.getCol() - 1];
-				if(nextPipeType.pipehasLeft()) 
+				if(nextPipeType.pipehasLeft()) {
 					//right to left
 					nextPipe.setFlowDirection(3);
-				else if(nextPipeType.pipehasBottom()) 
+					waterPath.add(nextPipe);
+				}
+				else if(nextPipeType.pipehasBottom()) {
 					//right to bottom
 					nextPipe.setFlowDirection(12);
-				else if(nextPipeType.pipehasTop()) 
+					waterPath.add(nextPipe);
+				}
+				else if(nextPipeType.pipehasTop()) {
 					//right to top 
 					nextPipe.setFlowDirection(11); 
-				else {
-					//is drain east
+					waterPath.add(nextPipe);
 				}
-				waterPath.add(nextPipe);
+				else {
+					nextPipe.setFlowDirection(3);
+					waterPath.add(nextPipe);
+					return;
+				}
 				updateWaterPath(waterPath.get(waterPath.size() - 1));
 			}
 		}
@@ -558,19 +576,26 @@ public class GameBoard extends PipesListener {
 				return;
 			else {
 				Pipe nextPipe = board[source.getRow()][source.getCol() + 1];
-				if(nextPipeType.pipehasRight()) 
+				if(nextPipeType.pipehasRight()) {
 					//left to right
 					nextPipe.setFlowDirection(4);
-				else if(nextPipeType.pipehasBottom()) 
+					waterPath.add(nextPipe);
+				}
+				else if(nextPipeType.pipehasBottom()) { 
 					//left to bottom
 					nextPipe.setFlowDirection(10);
-				else if(nextPipeType.pipehasTop()) 
+					waterPath.add(nextPipe);
+				}
+				else if(nextPipeType.pipehasTop()) {
 					//left to top 
 					nextPipe.setFlowDirection(9);
-				else {
-					//is drain west
+					waterPath.add(nextPipe);
 				}
-				waterPath.add(nextPipe);
+				else {
+					nextPipe.setFlowDirection(4);
+					waterPath.add(nextPipe);
+					return;
+				}
 				updateWaterPath(waterPath.get(waterPath.size() - 1));
 			}
 		}
@@ -592,11 +617,24 @@ public class GameBoard extends PipesListener {
 			if(board[row][col].getId() != 9 ) {
 				if(board[row][col].getId() != 10) {
 					Pipe current = board[row][col];
-					if(!current.startFlow() && !current.isPipeFull() && current.getPipeType() != currentPipe.getPipeType()) {
-						current.setPipeType(currentPipe.getPipeType());
-						board[row][col] = current;
-						refreshWaterPath();
-						updatePipeOptions();
+					if(waterPath.contains(current)) {
+						int currentIndex = (counter + 1) / 64; 
+						if(currentIndex < waterPath.indexOf(current) - 1) {
+							if(current.getPipeType() != currentPipe.getPipeType()) {
+								current.setPipeType(currentPipe.getPipeType());
+								board[row][col] = current;
+								refreshWaterPath();
+								updatePipeOptions();
+							}
+						}
+					}
+					else {
+						if(current.getPipeType() != currentPipe.getPipeType()) {
+							current.setPipeType(currentPipe.getPipeType());
+							board[row][col] = current;
+							refreshWaterPath();
+							updatePipeOptions();
+						}
 					}
 				}
 			}	
@@ -604,15 +642,24 @@ public class GameBoard extends PipesListener {
 	}
 	private void refreshWaterPath() {
 		if(!waterPath.isEmpty()) {
-			if(waterPath.size() > 1 && !fluidCanFlow) {
-				waterPath.subList(1, waterPath.size()).clear();
+			if(waterPath.size() > 1 && fluidCanFlow) {
+				int currentIndex = (counter + 1) / 64;  
+				waterPath.subList(currentIndex + 1, waterPath.size()).clear();
+				System.out.println("last flow dir: " + waterPath.get(waterPath.size() - 1).getFlowDirection());
+				updateWaterPath(waterPath.get(currentIndex));
 			}
 			else {
-				
+				waterPath.subList(1, waterPath.size()).clear();
+				System.out.println("last flow dir: " + waterPath.get(waterPath.size() - 1).getFlowDirection());
+				updateWaterPath(waterPath.get(0));
 			}
 		}
-		updateWaterPath(waterPath.get(0));
+		System.out.println("path size: " + waterPath.size());
 		pipeCount = waterPath.size();
+		Pipe drainPipe = board[drain.getRow()][drain.getCol()];
+		if(waterPath.contains(drainPipe)) {
+			setWon(true);
+		}
 	}
 	
 	private void updatePipeOptions() {
@@ -710,8 +757,7 @@ public class GameBoard extends PipesListener {
 	}	
 	
 	public int getHighestNumberPipes() {
-		
-		return 0;
+		return pipeCount;
 	}
 		
 	//Getters
@@ -722,7 +768,6 @@ public class GameBoard extends PipesListener {
 		//ie if not set to lost but you have lost ...
 		if(!this.lost && lost) {
 			leaderboard.addTopNumberPipes(getHighestNumberPipes());
-			leaderboard.addTopPipesScore(scores.getCurrentScore());
 			leaderboard.saveTopScores();
 		}
 		this.lost = lost;
@@ -735,7 +780,6 @@ public class GameBoard extends PipesListener {
 		//ie if not set to won but you have won ...
 		if(!this.won && won) {
 			leaderboard.addTopNumberPipes(getHighestNumberPipes());
-			leaderboard.addTopPipesScore(scores.getCurrentScore());
 			leaderboard.addTopPipesTime(scores.getTime());
 			leaderboard.saveTopScores();
 		}
@@ -745,6 +789,14 @@ public class GameBoard extends PipesListener {
 	public ScoreManager getScores() {
 		return scores;
 	}
+	public int getPipeCount() {
+		return pipeCount;
+	}
+
+	public int getPipesFilled() {
+		return pipesFilled;
+	}
+
 	public boolean hasStarted() {
 		return hasStarted;
 	}
